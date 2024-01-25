@@ -1,0 +1,89 @@
+name: Generated APK - Zulu 17
+
+on: 
+  workflow_dispatch
+  push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository }}
+          submodules: recursive
+
+      # Set Current Date As Env Variable
+      - name: Set current date as env variable
+        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      # Set Repository Info Into Env Variable
+      - name: Set repository name as env variable
+        run: |
+          echo "repository_name=$(echo '${{ inputs.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+          echo "author_name=$(echo '${{ inputs.repository }}' | awk -F '/' '{print $1}')" >> $GITHUB_ENV
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      # Run Tests Build
+      # - name: Run gradle tests
+      #   run: ./gradlew test
+
+      # Run Build Project
+      # - name: Build gradle project
+      #   run: ./gradlew build
+
+      # Create APK Debug
+      - name: Build apk debug for ${{ env.repository_name }}
+        run: ./gradlew assembleDebug
+
+      # Create APK Release
+      - name: Build apk release for ${{ env.repository_name }}
+        run: ./gradlew assemble
+
+      - name: Get Output Directory
+        run: echo "output_path=$(find . -path '*build/outputs/apk' | head -n 1)" >> $GITHUB_ENV
+
+      - name: Setup build tool version variable
+        shell: bash
+        run: |
+          BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
+          echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
+          echo Last build tool version is: $BUILD_TOOL_VERSION
+
+      - name: Sign APK with testkey
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: ${{ env.output_path }}/release/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
+
+      # Upload Artifact Build
+      # Noted For Output [main_project_module]/build/outputs/apk/debug/
+      - name: Upload APK Debug - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.repository_name }} (${{ env.author_name }}) - debug
+          path: ${{ env.output_path }}/debug/
+
+      # Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release - ${{ env.repository_name }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.date_today }} - ${{ env.repository_name }} (${{ env.author_name }}) - release signed
+          # path: ${{ env.output_path }}/release/
+          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
