@@ -1,8 +1,8 @@
 name: Generated APK - Zulu 17
 
 on: 
-  workflow_dispatch
-  push
+  workflow_dispatch:
+  push:
 
 jobs:
   build:
