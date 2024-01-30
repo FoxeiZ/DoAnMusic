@@ -300,8 +300,12 @@ public class MainActivity extends AppCompatActivity {
                 mainPlayerLayout.setAlpha(Math.min(v*2, 1f));
                 if (v == 1f) {
                     miniControlLayout.setVisibility(View.GONE);
+                    slidingUpPanel.setDragView(R.id.holdSlide);
                 } else if (v > 0f) {
-                    if (miniControlLayout.getVisibility() == View.GONE) miniControlLayout.setVisibility(View.VISIBLE);
+                    if (miniControlLayout.getVisibility() == View.GONE) {
+                        miniControlLayout.setVisibility(View.VISIBLE);
+                        slidingUpPanel.setDragView(R.id.miniControl);
+                    }
                 }
             }
 
