@@ -46,6 +46,11 @@ class MainPlayer {
     private SeekBar seekBar;
 
     private Timer playerTimer;
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
     private boolean isPlaying = false;
     private boolean isShuffle = false;
     private int PLAYBACK_MODE = 0;
@@ -67,26 +72,7 @@ class MainPlayer {
 
         mediaPlayer = new MediaPlayer();
 
-
-        playPauseCardView.setOnClickListener(view -> {
-            playPauseBtn.startAnimation(AnimationUtils.loadAnimation(
-                    context,
-                    R.anim.fadein
-            ));
-
-            if (isPlaying) {
-                isPlaying = false;
-                stopPlayerTimer();
-                mediaPlayer.pause();
-                playPauseBtn.setImageResource(R.drawable.play_icon);
-            } else {
-                isPlaying = true;
-                startNewTimer();
-                mediaPlayer.start();
-                playPauseBtn.setImageResource(R.drawable.pause_icon);
-            }
-        });
-
+        playPauseCardView.setOnClickListener(view -> onPauseButton());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -169,33 +155,33 @@ class MainPlayer {
         previousBtn.setOnClickListener(view -> prevSong(true));
     }
 
-    private void prevSong(boolean force) {
+    public void prevSong(boolean force) {
     }
 
-    private void prevSong() {
+    public void prevSong() {
         prevSong(false);
     }
 
-    private void nextSong(boolean force) {
+    public void nextSong(boolean force) {
     }
 
-    private void nextSong() {
+    public void nextSong() {
         nextSong(false);
     }
 
-    private String convertTimeToString(int intTime) {
+    public String convertTimeToString(int intTime) {
         return String.format(Locale.getDefault(), "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(intTime),
                 TimeUnit.MILLISECONDS.toSeconds(intTime) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(intTime)));
     }
 
-    private void resetBottomBar() {
+    public void resetBottomBar() {
         startTime.setText(R.string.default_timestamp);
         seekBar.setProgress(0);
     }
 
-    private void startNewTimer() {
+    public void startNewTimer() {
         playerTimer = new Timer();
         playerTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -209,7 +195,26 @@ class MainPlayer {
         }, 1000, 1000);
     }
 
-    private void stopPlayerTimer() {
+    public void onPauseButton() {
+        playPauseBtn.startAnimation(AnimationUtils.loadAnimation(
+                context,
+                R.anim.fadein
+        ));
+
+        if (isPlaying) {
+            isPlaying = false;
+            stopPlayerTimer();
+            mediaPlayer.pause();
+            playPauseBtn.setImageResource(R.drawable.play_icon);
+        } else {
+            isPlaying = true;
+            startNewTimer();
+            mediaPlayer.start();
+            playPauseBtn.setImageResource(R.drawable.pause_icon);
+        }
+    }
+
+    public void stopPlayerTimer() {
         if (playerTimer != null) {
             playerTimer.purge();
             playerTimer.cancel();
@@ -233,6 +238,36 @@ class MainPlayer {
 
 class MiniControl {
 
+    private Context context;
+    private LinearLayout rootLayout;
+    private MainPlayer mainPlayer;
+
+    public MiniControl(Context context, LinearLayout rootLayout, MainPlayer mainPlayer) {
+        this.context = context;
+        this.rootLayout = rootLayout;
+        this.mainPlayer = mainPlayer;
+
+        LinearLayout mini_c_playBtn = rootLayout.findViewById(R.id.mini_c_playBtn);
+        ImageView mini_c_playIv = rootLayout.findViewById(R.id.mini_c_playIv);
+        TextView mini_c_songTitle = rootLayout.findViewById(R.id.mini_c_songTitle);
+        ImageView mini_c_nextBtn = rootLayout.findViewById(R.id.mini_c_nextBtn);
+
+        mini_c_playBtn.setOnClickListener(view -> {
+            mainPlayer.onPauseButton();
+            mini_c_playIv.startAnimation(AnimationUtils.loadAnimation(
+                    context,
+                    R.anim.fadein
+            ));
+            if (mainPlayer.isPlaying()) {
+                mini_c_playIv.setImageResource(R.drawable.pause_icon);
+            }
+            else {
+                mini_c_playIv.setImageResource(R.drawable.play_icon);
+            }
+        });
+        mini_c_nextBtn.setOnClickListener(view -> mainPlayer.nextSong(true));
+
+    }
 }
 
 
@@ -298,6 +333,7 @@ public class MainActivity extends AppCompatActivity {
         }).attach();
 
         mainPlayer = new MainPlayer(this, mainPlayerLayout);
+        new MiniControl(this, miniControlLayout, mainPlayer);
     }
 
     @Override

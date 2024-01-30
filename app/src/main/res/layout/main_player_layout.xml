@@ -14,15 +14,24 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <ImageView
+        <LinearLayout
+            android:id="@+id/mini_c_playBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:layout_gravity="center"
-            android:contentDescription="@string/contentDescription"
-            android:src="@drawable/play_icon" />
+            android:padding="5dp"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/mini_c_playIv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/contentDescription"
+                android:src="@drawable/play_icon" />
+        </LinearLayout>
 
         <TextView
+            android:id="@+id/mini_c_songTitle"
             android:layout_width="0sp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -33,6 +42,7 @@
             android:textSize="20sp" />
 
         <ImageView
+            android:id="@+id/mini_c_nextBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -51,15 +61,25 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <ImageView
+            android:id="@+id/holdSlide"
+            android:layout_width="128dp"
+            android:layout_height="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="@color/white"
+            android:backgroundTintMode="src_over"
+            android:background="@drawable/round_10"/>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/coverArtHolder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/holdSlide"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="12dp"
-            android:layout_alignParentTop="true"
             app:cardBackgroundColor="#3C4E59"
             app:cardCornerRadius="10dp">
 
