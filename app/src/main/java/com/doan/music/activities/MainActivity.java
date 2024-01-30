@@ -215,6 +215,19 @@ class MainPlayer {
             playerTimer.cancel();
         }
     }
+
+    public void destroy() {
+        stopPlayerTimer();
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                mediaPlayer.stop();
+            }
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
 }
 
 
@@ -295,5 +308,11 @@ public class MainActivity extends AppCompatActivity {
         else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mainPlayer.destroy();
     }
 }
