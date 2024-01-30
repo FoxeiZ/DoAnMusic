@@ -11,7 +11,7 @@
     sothree:umanoShadowHeight="4dp"
     app:umanoParallaxOffset="120dp"
     app:umanoScrollableView="@id/mainPlayer"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
