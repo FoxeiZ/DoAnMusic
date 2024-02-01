@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -59,6 +60,8 @@ class MainPlayer {
         this.context = context;
         this.rootLayout = rootLayout;
 
+        rootLayout.setAlpha(0);
+
         ImageView nextBtn = rootLayout.findViewById(R.id.nextBtn);
         ImageView previousBtn = rootLayout.findViewById(R.id.previousBtn);
         loopBtn = rootLayout.findViewById(R.id.loopBtn);
@@ -108,9 +111,7 @@ class MainPlayer {
         });
 
         mediaPlayer.setOnCompletionListener(mp -> {
-            playerTimer.purge();
-            playerTimer.cancel();
-
+            stopPlayerTimer();
             if (isPlaying) {
                 nextSong();
             }
@@ -266,7 +267,6 @@ class MiniControl {
             }
         });
         mini_c_nextBtn.setOnClickListener(view -> mainPlayer.nextSong(true));
-
     }
 }
 
@@ -298,19 +298,26 @@ public class MainActivity extends AppCompatActivity {
                 miniControlLayout.setAlpha((-v+1));
                 miniControlLayout.setTranslationY(32*v);
                 mainPlayerLayout.setAlpha(Math.min(v*2, 1f));
-                if (v == 1f) {
-                    miniControlLayout.setVisibility(View.GONE);
-                    slidingUpPanel.setDragView(R.id.holdSlide);
-                } else if (v > 0f) {
-                    if (miniControlLayout.getVisibility() == View.GONE) {
-                        miniControlLayout.setVisibility(View.VISIBLE);
-                        slidingUpPanel.setDragView(R.id.miniControl);
-                    }
-                }
             }
 
             @Override
-            public void onPanelStateChanged(@NonNull View view, @NonNull PanelState panelState, @NonNull PanelState panelState1) {
+            public void onPanelStateChanged(@NonNull View view, @NonNull PanelState beforeState, @NonNull PanelState afterState) {
+                Log.d("",String.format(
+                        "onPanelStateChanged: beforeState=%s, afterState=%s",
+                        beforeState.name(),
+                        afterState.name()
+                ));
+
+                if (beforeState == PanelState.DRAGGING) {
+                    if (afterState == PanelState.EXPANDED) {
+                        miniControlLayout.setVisibility(View.GONE);
+                        slidingUpPanel.setDragView(R.id.holdSlide);
+                    } else if (afterState == PanelState.COLLAPSED) {
+                        slidingUpPanel.setDragView(R.id.miniControl);
+                    }
+                } else if (beforeState == PanelState.EXPANDED && afterState == PanelState.DRAGGING) {
+                    miniControlLayout.setVisibility(View.VISIBLE);
+                }
             }
         });
 

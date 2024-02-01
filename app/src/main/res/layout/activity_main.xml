@@ -122,6 +122,6 @@
         </androidx.viewpager2.widget.ViewPager2>
     </RelativeLayout>
 
-    <include layout="@layout/main_player_layout" />
+    <include layout="@layout/mini_slide_up_layout" />
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

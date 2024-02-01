@@ -51,7 +51,7 @@ public class SplashActivity extends AppCompatActivity {
                 startMainActivity();
             }
             else {
-                Toast.makeText(this, "Permission Denied. Please granted to use the app.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permission Denied. Please granted to use the app.", Toast.LENGTH_LONG).show();
                 finish();
             }
         }
