@@ -12,4 +12,7 @@
     <string name="album">Album</string>
     <string name="playlist">Playlist</string>
     <string name="songs">Songs</string>
+    <string name="default_artist">ArtistName</string>
+    <string name="default_title">TitleName</string>
+    <string name="default_time">00:00</string>
 </resources>

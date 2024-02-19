@@ -1,4 +1,4 @@
-package com.doan.music;
+package com.doan.music.adapter;
 
 
 import androidx.annotation.NonNull;
@@ -11,15 +11,19 @@ import com.doan.music.fragments.ArtistsFragment;
 import com.doan.music.fragments.GenresFragment;
 import com.doan.music.fragments.PlaylistFragment;
 import com.doan.music.fragments.SongsFragment;
+import com.doan.music.models.MusicModel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
+    private final ArrayList<MusicModel> musicModels;
     private final HashMap<Integer, Fragment> hashMap = new HashMap<>();
 
-    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<MusicModel> musicModels) {
         super(fragmentActivity);
+        this.musicModels = musicModels;
     }
 
     private Fragment internalCreateFragment(int position) {
@@ -34,7 +38,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             case 4:
                 return new GenresFragment();
             default:
-                return new SongsFragment();
+                return SongsFragment.newInstance(musicModels);
         }
     }
 

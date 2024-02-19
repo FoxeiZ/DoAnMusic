@@ -1,14 +1,22 @@
 package com.doan.music.activities;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -17,16 +25,20 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.doan.music.R;
-import com.doan.music.ViewPagerAdapter;
+import com.doan.music.SongChangeListener;
+import com.doan.music.adapter.ViewPagerAdapter;
+import com.doan.music.models.MusicModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.sothree.slidinguppanel.PanelSlideListener;
 import com.sothree.slidinguppanel.PanelState;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,6 +50,7 @@ class MainPlayer {
     private static final int PLAYBACK_MODE_LOOP_ALL = 1;
     private static final int PLAYBACK_MODE_LOOP = 2;
 
+    private ArrayList<MusicModel> musicModels;
     private Context context;
     private RelativeLayout rootLayout;
 
@@ -156,6 +169,11 @@ class MainPlayer {
         previousBtn.setOnClickListener(view -> prevSong(true));
     }
 
+    public void setMusicModels(ArrayList<MusicModel> musicModels) {
+        this.musicModels = musicModels;
+
+    }
+
     public void prevSong(boolean force) {
     }
 
@@ -271,11 +289,15 @@ class MiniControl {
 }
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SongChangeListener {
+
+    private static final int PERMISSION_REQUEST_CODE = 200;
 
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
+
+    private static ArrayList<MusicModel> musicModels = new ArrayList<>();
 
     private MainPlayer mainPlayer;
     private MiniControl miniControl;
@@ -321,7 +343,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
+        // permissions check, init music db
+        if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            somethingMusicList();
+        } else {
+            requestPermissions(new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
+
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, musicModels);
         content.setAdapter(viewPagerAdapter);
         new TabLayoutMediator(tabLayout, content, (tab, position) -> {
             switch (position) {
@@ -345,6 +374,60 @@ public class MainActivity extends AppCompatActivity {
 
         mainPlayer = new MainPlayer(this, mainPlayerLayout);
         new MiniControl(this, miniControlLayout, mainPlayer);
+        // Done layout init
+    }
+
+    private ArrayList<MusicModel> createMusicList() {
+        ArrayList<MusicModel> musicModels = new ArrayList<>();
+        ContentResolver contentResolver = getContentResolver();
+
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = contentResolver.query(uri, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
+                do {
+                    long cursorId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                    long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                    String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+
+                    String songDuration = "0";
+                    songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                    if (songDuration == null) {
+                        continue;
+                    }
+
+                    musicModels.add(new MusicModel(title, artist, songDuration, false, cursorId, albumId));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        } else {
+            Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+        }
+
+        return musicModels;
+    }
+
+    private void somethingMusicList() {
+        musicModels = createMusicList();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            somethingMusicList();
+        } else {
+            Toast.makeText(this, "Permission Denied. Exiting...", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
+    public void onChanged(int position) {
+
     }
 
     @Override
