@@ -2,7 +2,6 @@ package com.doan.music.views;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -11,7 +10,9 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
+import com.doan.music.MainPlayer;
 import com.doan.music.R;
+import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.MusicModelManager;
 
 import java.util.Locale;
@@ -21,15 +22,11 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MainPlayerView {
-    private static final int PLAYBACK_MODE_NORMAL = 0;
-    private static final int PLAYBACK_MODE_LOOP_ALL = 1;
-    private static final int PLAYBACK_MODE_LOOP = 2;
-
     private MusicModelManager musicModelManager;
     private Context context;
     private RelativeLayout rootLayout;
 
-    private MediaPlayer mediaPlayer;
+    private MainPlayer mainPlayer;
     private TextView startTime, endTime;
     private ImageView playPauseBtn, loopBtn, shuffleBtn;
     private SeekBar seekBar;
@@ -37,15 +34,15 @@ public class MainPlayerView {
     private Timer playerTimer;
 
     public boolean isPlaying() {
-        return isPlaying;
+        return mainPlayer.isPlaying();
     }
-
-    private boolean isPlaying = false;
-    private boolean isShuffle = false;
-    private int PLAYBACK_MODE = 0;
 
     public interface SongChangeListener {
         void onChanged(int position);
+    }
+
+    public MainPlayer getMainPlayer() {
+        return mainPlayer;
     }
 
     public MainPlayerView(Context context, RelativeLayout rootLayout, MusicModelManager musicModelManager) {
@@ -66,16 +63,16 @@ public class MainPlayerView {
         startTime = rootLayout.findViewById(R.id.currentTime);
         endTime = rootLayout.findViewById(R.id.endTime);
 
-        mediaPlayer = new MediaPlayer();
+        mainPlayer = new MainPlayer(musicModelManager);
 
         playPauseCardView.setOnClickListener(view -> onPauseButton());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    mediaPlayer.seekTo(i);
-                    int getCurrentTime = mediaPlayer.getCurrentPosition();
-                    startTime.setText(convertTimeToString(getCurrentTime));
+                    mainPlayer.seekTo(i);
+                    int currentTime = mainPlayer.getCurrentTime();
+                    startTime.setText(convertTimeToString(currentTime));
                 }
             }
 
@@ -90,43 +87,42 @@ public class MainPlayerView {
             }
         });
 
-        mediaPlayer.setOnPreparedListener(mp -> {
-            final int getTotalDuration = mp.getDuration();
-            if (!isPlaying) {
+        mainPlayer.setMediaOnPreparedListener(new MainPlayer.MediaPreparedListener() {
+            @Override
+            public void onPlay(int totalDuration) {
+                endTime.setText(convertTimeToString(totalDuration));
+                seekBar.setMax(totalDuration);
+            }
+
+            @Override
+            public void onNotPlay() {
                 playPauseBtn.animate();
                 playPauseBtn.setImageResource(R.drawable.pause_icon);
             }
-            isPlaying = true;
-
-            endTime.setText(convertTimeToString(getTotalDuration));
-            seekBar.setMax(getTotalDuration);
-            mp.start();
         });
 
-        mediaPlayer.setOnCompletionListener(mp -> {
-            stopPlayerTimer();
-            if (isPlaying) {
-                nextSong();
-            }
-        });
+        mainPlayer.setMediaCompletionListener(this::stopPlayerTimer);
 
         loopBtn.setOnClickListener(view -> {
             loopBtn.startAnimation(AnimationUtils.loadAnimation(
                     context,
                     R.anim.fadein
             ));
-            switch (PLAYBACK_MODE) {
+
+            switch (mainPlayer.getPlaybackMode()) {
                 case PLAYBACK_MODE_NORMAL:
-                    PLAYBACK_MODE = PLAYBACK_MODE_LOOP_ALL;
+                    mainPlayer.setPlaybackMode(PlaybackMode.PLAYBACK_MODE_LOOP_ALL);
                     loopBtn.setImageResource(R.drawable.loop_all_on_icon);
                     break;
                 case PLAYBACK_MODE_LOOP_ALL:
-                    PLAYBACK_MODE = PLAYBACK_MODE_LOOP;
+                    mainPlayer.setPlaybackMode(PlaybackMode.PLAYBACK_MODE_LOOP);
                     loopBtn.setImageResource(R.drawable.loop_one_on_icon);
                     break;
                 case PLAYBACK_MODE_LOOP:
-                    PLAYBACK_MODE = PLAYBACK_MODE_NORMAL;
+                    mainPlayer.setPlaybackMode(PlaybackMode.PLAYBACK_MODE_NORMAL);
                     loopBtn.setImageResource(R.drawable.loop_all_icon);
+                    break;
+                default:
                     break;
             }
         });
@@ -136,31 +132,17 @@ public class MainPlayerView {
                     context,
                     R.anim.fadein
             ));
-            if (isShuffle) {
-                isShuffle = false;
+            if (mainPlayer.isShuffle()) {
+                mainPlayer.setShuffle(false);
                 shuffleBtn.setImageResource(R.drawable.shuffle_icon);
                 return;
             }
-            isShuffle = true;
+            mainPlayer.setShuffle(true);
             shuffleBtn.setImageResource(R.drawable.shuffle_on_icon);
         });
 
-        nextBtn.setOnClickListener(view -> nextSong(true));
-        previousBtn.setOnClickListener(view -> prevSong(true));
-    }
-
-    public void prevSong(boolean force) {
-    }
-
-    public void prevSong() {
-        prevSong(false);
-    }
-
-    public void nextSong(boolean force) {
-    }
-
-    public void nextSong() {
-        nextSong(false);
+        nextBtn.setOnClickListener(view -> mainPlayer.next(true));
+        previousBtn.setOnClickListener(view -> mainPlayer.prev(true));
     }
 
     public String convertTimeToString(int intTime) {
@@ -181,7 +163,7 @@ public class MainPlayerView {
             @Override
             public void run() {
                 ((Activity) context).runOnUiThread(() -> {
-                    final int getCurrentDuration = mediaPlayer.getCurrentPosition();
+                    final int getCurrentDuration = mainPlayer.getCurrentTime();
                     seekBar.setProgress(getCurrentDuration);
                     startTime.setText(convertTimeToString(getCurrentDuration));
                 });
@@ -195,15 +177,13 @@ public class MainPlayerView {
                 R.anim.fadein
         ));
 
-        if (isPlaying) {
-            isPlaying = false;
+        if (mainPlayer.isPlaying()) {
             stopPlayerTimer();
-            mediaPlayer.pause();
+            mainPlayer.pause();
             playPauseBtn.setImageResource(R.drawable.play_icon);
         } else {
-            isPlaying = true;
             startNewTimer();
-            mediaPlayer.start();
+            mainPlayer.play();
             playPauseBtn.setImageResource(R.drawable.pause_icon);
         }
     }
@@ -217,14 +197,6 @@ public class MainPlayerView {
 
     public void destroy() {
         stopPlayerTimer();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                mediaPlayer.stop();
-            }
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        mainPlayer.destroy();
     }
 }

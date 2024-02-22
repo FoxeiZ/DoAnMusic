@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,19 +15,17 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.doan.music.MainPlayer;
+import com.doan.music.views.MainPlayerView;
 import com.doan.music.R;
 import com.doan.music.adapter.ViewPagerAdapter;
 import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
+import com.doan.music.views.MiniControlView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.sothree.slidinguppanel.PanelSlideListener;
@@ -36,43 +33,6 @@ import com.sothree.slidinguppanel.PanelState;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
-
-
-class MiniControl {
-
-    final private Context context;
-    final private LinearLayout rootLayout;
-    final private MusicModelManager musicModelManager;
-    final private MainPlayer mainPlayer;
-
-    public MiniControl(Context context, LinearLayout rootLayout, MainPlayer mainPlayer, MusicModelManager musicModelManager) {
-        this.context = context;
-        this.rootLayout = rootLayout;
-        this.mainPlayer = mainPlayer;
-        this.musicModelManager = musicModelManager;
-
-        LinearLayout mini_c_playBtn = rootLayout.findViewById(R.id.mini_c_playBtn);
-        ImageView mini_c_playIv = rootLayout.findViewById(R.id.mini_c_playIv);
-        TextView mini_c_songTitle = rootLayout.findViewById(R.id.mini_c_songTitle);
-        ImageView mini_c_nextBtn = rootLayout.findViewById(R.id.mini_c_nextBtn);
-
-        mini_c_playBtn.setOnClickListener(view -> {
-            mainPlayer.onPauseButton();
-            mini_c_playIv.startAnimation(AnimationUtils.loadAnimation(
-                    context,
-                    R.anim.fadein
-            ));
-            if (mainPlayer.isPlaying()) {
-                mini_c_playIv.setImageResource(R.drawable.pause_icon);
-            }
-            else {
-                mini_c_playIv.setImageResource(R.drawable.play_icon);
-            }
-        });
-        mini_c_nextBtn.setOnClickListener(view -> mainPlayer.nextSong(true));
-    }
-}
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,8 +44,16 @@ public class MainActivity extends AppCompatActivity {
 
     private MusicModelManager musicModelManager;
 
-    private MainPlayer mainPlayer;
-    private MiniControl miniControl;
+    public MainPlayerView getMainPlayerView() {
+        return mainPlayerView;
+    }
+
+    public MiniControlView getMiniControlView() {
+        return miniControlView;
+    }
+
+    private MainPlayerView mainPlayerView;
+    private MiniControlView miniControlView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attach();
 
-        mainPlayer = new MainPlayer(this, mainPlayerLayout, musicModelManager);
-        miniControl = new MiniControl(this, miniControlLayout, mainPlayer, musicModelManager);
+        mainPlayerView = new MainPlayerView(this, mainPlayerLayout, musicModelManager);
+        miniControlView = new MiniControlView(this, miniControlLayout, mainPlayerView, musicModelManager);
         // Done layout init
     }
 
@@ -177,8 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
                     String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
 
-                    String songDuration = "0";
-                    songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                    String songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
                     if (songDuration == null) {
                         continue;
                     }
@@ -203,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void somethingMusicList() {
-        musicModelManager = new MusicModelManager(createMusicList(), getApplicationContext());
+        musicModelManager = new MusicModelManager(createMusicList(), MainActivity.this);
     }
 
     @Override
@@ -231,6 +198,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mainPlayer.destroy();
+        mainPlayerView.destroy();
     }
 }

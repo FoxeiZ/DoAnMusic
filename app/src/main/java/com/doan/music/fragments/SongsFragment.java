@@ -4,11 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +14,7 @@ import android.view.ViewGroup;
 import com.doan.music.R;
 import com.doan.music.activities.MainActivity;
 import com.doan.music.adapter.SongItemAdapter;
-import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class SongsFragment extends BaseFragment {
     private MusicModelManager musicModelManager;
@@ -53,7 +47,7 @@ public class SongsFragment extends BaseFragment {
         songItemAdapter = new SongItemAdapter(musicModelManager);
         musicRecyclerView.setAdapter(songItemAdapter);
 
-        musicModelManager.subscribeToRecyclerManager(musicRecyclerView);
+        musicModelManager.subscribeToRecyclerManager("SongFragmentRV", musicRecyclerView);
     }
 
     @Override
