@@ -40,14 +40,16 @@ import java.util.ArrayList;
 
 class MiniControl {
 
-    private Context context;
-    private LinearLayout rootLayout;
-    private MainPlayer mainPlayer;
+    final private Context context;
+    final private LinearLayout rootLayout;
+    final private MusicModelManager musicModelManager;
+    final private MainPlayer mainPlayer;
 
-    public MiniControl(Context context, LinearLayout rootLayout, MainPlayer mainPlayer) {
+    public MiniControl(Context context, LinearLayout rootLayout, MainPlayer mainPlayer, MusicModelManager musicModelManager) {
         this.context = context;
         this.rootLayout = rootLayout;
         this.mainPlayer = mainPlayer;
+        this.musicModelManager = musicModelManager;
 
         LinearLayout mini_c_playBtn = rootLayout.findViewById(R.id.mini_c_playBtn);
         ImageView mini_c_playIv = rootLayout.findViewById(R.id.mini_c_playIv);
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
 
-    private static MusicModelManager musicModelManager;
+    private MusicModelManager musicModelManager;
 
     private MainPlayer mainPlayer;
     private MiniControl miniControl;
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         }).attach();
 
         mainPlayer = new MainPlayer(this, mainPlayerLayout, musicModelManager);
-        new MiniControl(this, miniControlLayout, mainPlayer);
+        miniControl = new MiniControl(this, miniControlLayout, mainPlayer, musicModelManager);
         // Done layout init
     }
 
@@ -196,12 +198,12 @@ public class MainActivity extends AppCompatActivity {
         return musicModelManager;
     }
 
-    public static void setMusicModelManager(MusicModelManager musicModelManager) {
-        MainActivity.musicModelManager = musicModelManager;
+    public void setMusicModelManager(MusicModelManager musicModelManager) {
+        this.musicModelManager = musicModelManager;
     }
 
     private void somethingMusicList() {
-        musicModelManager = new MusicModelManager(createMusicList());
+        musicModelManager = new MusicModelManager(createMusicList(), getApplicationContext());
     }
 
     @Override

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,27 +36,15 @@ public class SongsFragment extends BaseFragment {
         this.musicModelManager = musicModelManager;
     }
 
-//    public static SongsFragment newInstance(ArrayList<MusicModel> musicModels) {
-//        SongsFragment fragment = new SongsFragment();
-//        Bundle args = new Bundle();
-//        args.putParcelableArrayList(ARG_MUSIC_LIST, musicModels);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            musicModels = getArguments().getParcelableArrayList(ARG_MUSIC_LIST);
-//        }
+/*
+    public static SongsFragment newInstance(ArrayList<MusicModel> musicModels) {
+        SongsFragment fragment = new SongsFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(ARG_MUSIC_LIST, musicModels);
+        fragment.setArguments(args);
+        return fragment;
     }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
+*/
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) requireActivity();
@@ -70,10 +59,6 @@ public class SongsFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        if (savedInstanceState != null) {
-//            musicModels = requireArguments().getParcelableArrayList(ARG_MUSIC_LIST);
-//        }
-
         View view = inflater.inflate(R.layout.fragment_songs, container, false);
 
         musicRecyclerView = view.findViewById(R.id.musicRecyclerView);

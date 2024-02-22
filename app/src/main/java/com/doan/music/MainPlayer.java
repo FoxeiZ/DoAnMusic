@@ -150,20 +150,6 @@ public class MainPlayer {
         previousBtn.setOnClickListener(view -> prevSong(true));
     }
 
-    public void prevSong(boolean force) {
-    }
-
-    public void prevSong() {
-        prevSong(false);
-    }
-
-    public void nextSong(boolean force) {
-    }
-
-    public void nextSong() {
-        nextSong(false);
-    }
-
     public String convertTimeToString(int intTime) {
         return String.format(Locale.getDefault(), "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(intTime),
@@ -214,6 +200,51 @@ public class MainPlayer {
             playerTimer.purge();
             playerTimer.cancel();
         }
+    }
+
+    public void prevSong(boolean force) {
+        int nextPosition = musicModelManager.getCurrentSongIndex();
+
+        if (PLAYBACK_MODE != PLAYBACK_MODE_LOOP || force) {
+            nextPosition = nextPosition -1;
+        }
+
+        if (nextPosition < 0) {
+            if (PLAYBACK_MODE == PLAYBACK_MODE_LOOP_ALL) {
+                nextPosition = musicModelManager.getItemCount() - 1;
+            }
+            else {
+                nextPosition = 0;
+            }
+        }
+        musicModelManager.onChanged(nextPosition);
+    }
+
+    public void prevSong() {
+        prevSong(false);
+    }
+
+    public void nextSong(boolean force) {
+        ArrayList<MusicModel> models = musicModelManager.getCurrentModel();
+
+        int nextPosition = musicModelManager.getCurrentSongIndex();
+        if (PLAYBACK_MODE != PLAYBACK_MODE_LOOP || force) {
+            nextPosition = nextPosition + 1;
+        }
+
+        if (nextPosition >= models.size()) {
+            if (PLAYBACK_MODE == PLAYBACK_MODE_LOOP_ALL) {
+                nextPosition = 0;
+            }
+            else {
+                nextPosition = models.size() - 1;
+            }
+        }
+        musicModelManager.onChanged(nextPosition);
+    }
+
+    public void nextSong() {
+        nextSong(false);
     }
 
     public void destroy() {
