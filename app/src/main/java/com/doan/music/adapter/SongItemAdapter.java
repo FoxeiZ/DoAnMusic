@@ -2,6 +2,7 @@ package com.doan.music.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.R;
-import com.doan.music.SongChangeListener;
 import com.doan.music.models.MusicModel;
+import com.doan.music.models.MusicModelManager;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class MusicItemAdapter extends RecyclerView.Adapter<MusicItemAdapter.ViewHolder> {
+public class SongItemAdapter extends BaseItemAdapter {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public RelativeLayout adapterRoot;
@@ -38,43 +39,36 @@ public class MusicItemAdapter extends RecyclerView.Adapter<MusicItemAdapter.View
 
         }
 
-        public void setPlaying(boolean v) {
-            if (v) {
+        public void setPlaying(boolean playing) {
+            if (playing) {
                 adapterRoot.setBackgroundResource(R.drawable.round_10_color);
-                songTitle.setTextColor(-16777216);
-                songArtist.setTextColor(-16777216);
-                songDuration.setTextColor(-16777216);
-            }
-            else {
+                songTitle.setTextColor(Color.BLACK);
+                songArtist.setTextColor(Color.BLACK);
+                songDuration.setTextColor(Color.BLACK);
+            } else {
                 adapterRoot.setBackgroundResource(R.drawable.round_10);
-                songTitle.setTextColor(0xfff2f2f2);
-                songArtist.setTextColor(0xfff2f2f2);
-                songDuration.setTextColor(0xfff2f2f2);
+                songTitle.setTextColor(Color.WHITE);
+                songArtist.setTextColor(Color.WHITE);
+                songDuration.setTextColor(Color.WHITE);
             }
         }
     }
 
-    private ArrayList<MusicModel> musicModels;
-    private final SongChangeListener songChangeListener;
-    private MusicModel currentPlaying;
 
-    public MusicItemAdapter(Context context, ArrayList<MusicModel> musicModels) {
-        this.musicModels = musicModels;
-        currentPlaying = musicModels.get(0);
-        this.songChangeListener = (SongChangeListener) context;
+    public SongItemAdapter(MusicModelManager musicModelManager) {
+        super(musicModelManager);
     }
-
 
     @SuppressLint("InflateParams")
     @NonNull
     @Override
-    public MusicItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SongItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_song_item, null));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MusicItemAdapter.ViewHolder holder, int position) {
-        MusicModel song = musicModels.get(position);
+    public void onBindViewHolder(@NonNull SongItemAdapter.ViewHolder holder, int position) {
+        MusicModel song = musicModelManager.get(position);
         holder.setPlaying(song.isPlaying());
 
         String songDuration = song.getDuration();
@@ -90,31 +84,8 @@ public class MusicItemAdapter extends RecyclerView.Adapter<MusicItemAdapter.View
         holder.adapterRoot.setOnClickListener(view -> songChangeListener.onChanged(position));
     }
 
-    public void updateSongState(MusicModel model) {
-        int idx = musicModels.indexOf(model);
-        if (idx > -1) {
-            notifyItemChanged(idx);
-        }
-    }
-
-    public void updateSongsState(MusicModel m1, MusicModel m2) {
-        updateSongState(m1);
-        updateSongState(m2);
-        currentPlaying = m2;
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void updateList(ArrayList<MusicModel> list) {
-        this.musicModels = list;
-        notifyDataSetChanged();
-    }
-
-    public MusicModel getCurrentPlaying() {
-        return currentPlaying;
-    }
-
     @Override
     public int getItemCount() {
-        return musicModels.size();
+        return musicModelManager.getItemCount();
     }
 }

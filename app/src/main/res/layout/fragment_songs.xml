@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/musicRecyclerView"
-    android:layout_marginTop="12dp"
     android:scrollbars="vertical"
     tools:context=".fragments.SongsFragment"
     tools:listitem="@layout/list_song_item"/>
