@@ -3,17 +3,17 @@ package com.doan.music.models;
 import android.app.Activity;
 import android.content.Context;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.MainPlayer;
 import com.doan.music.activities.MainActivity;
-import com.doan.music.views.MainPlayerView;
 import com.doan.music.adapter.BaseItemAdapter;
+import com.doan.music.views.MainPlayerView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MusicModelManager implements MainPlayerView.SongChangeListener {
     private final ArrayList<MusicModel> originModel;
@@ -44,7 +44,7 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         void onClick();
     }
     public interface CurrentTimeUpdateListener {
-        void onUpdate(int currentTime);
+        void onUpdate(int currentTime, int currentPercent);
     }
 
     public void addOnPauseButtonListener(PauseButtonListener pauseButtonListener) {
@@ -107,10 +107,12 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         playerTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                ((Activity) context).runOnUiThread(() -> {
-                    int currentTime = mainPlayer.getCurrentTime();
-                    currentTimeUpdateListener.onUpdate(currentTime);
-                });
+                ((Activity) context)
+                        .runOnUiThread(() -> currentTimeUpdateListener
+                                .onUpdate(
+                                        mainPlayer.getCurrentTime(),
+                                        mainPlayer.getCurrentPercent()
+                                ));
             }
         }, 1000, 1000);
     }

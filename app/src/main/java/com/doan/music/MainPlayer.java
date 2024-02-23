@@ -174,6 +174,14 @@ public class MainPlayer {
         return mediaPlayer.getCurrentPosition();
     }
 
+    public int getCurrentPercent() {
+        return getCurrentTime() * 100 / getDuration();
+    }
+
+    public int getDuration() {
+        return mediaPlayer.getDuration();
+    }
+
     public void next() {
         next(false);
     }

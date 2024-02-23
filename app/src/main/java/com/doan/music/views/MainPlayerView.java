@@ -32,6 +32,8 @@ public class MainPlayerView {
     private final ImageView playPauseBtn, loopBtn, shuffleBtn, coverArt;
     private final SeekBar seekBar;
 
+    private boolean pauseTimeUpdate;
+
     public interface SongChangeListener {
         void onChanged(int position);
     }
@@ -68,9 +70,11 @@ public class MainPlayerView {
             }
         });
 
-        musicModelManager.setOnCurrentTimeUpdateListener(currentTime -> {
-            seekBar.setProgress(currentTime);
-            startTime.setText(convertTimeToString(currentTime));
+        musicModelManager.setOnCurrentTimeUpdateListener((currentTime, currentPercent) -> {
+            if (!pauseTimeUpdate) {
+                seekBar.setProgress(currentPercent);
+                startTime.setText(convertTimeToString(currentTime));
+            }
         });
 
         playPauseCardView.setOnClickListener(view -> musicModelManager.onPaused());
@@ -78,18 +82,20 @@ public class MainPlayerView {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    int currentTime = mainPlayer.getCurrentTime();
+                    int currentTime = mainPlayer.getDuration() * i / 100;
                     startTime.setText(convertTimeToString(currentTime));
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                pauseTimeUpdate = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mainPlayer.seekTo(seekBar.getProgress());
+                pauseTimeUpdate = false;
+                mainPlayer.seekTo(seekBar.getProgress() * mainPlayer.getDuration() / 100);
             }
         });
 
@@ -97,7 +103,6 @@ public class MainPlayerView {
             @Override
             public void onPlay(int totalDuration) {
                 endTime.setText(convertTimeToString(totalDuration));
-                seekBar.setMax(totalDuration);
             }
 
             @Override
