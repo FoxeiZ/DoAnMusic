@@ -1,5 +1,6 @@
 package com.doan.music.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -146,11 +147,10 @@ public class MainPlayerView {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(intTime)));
     }
 
-    public void resetBottomBar() {
+    public void resetTime() {
         startTime.setText(R.string.default_timestamp);
         seekBar.setProgress(0);
     }
-
 
     public void setCoverArt(Uri albumArtUri) {
         try {
@@ -166,15 +166,14 @@ public class MainPlayerView {
         }
     }
 
-
     public void setPlay(MusicModel model) {
         tvTitle.setText(model.getTitle());
         tvArtist.setText(model.getArtist());
-        setCoverArt(model.getAlbumArtUri());
+        ((Activity) context).runOnUiThread(() -> setCoverArt(model.getAlbumArtUri()));
 
         tvTitle.setSelected(true);
         tvArtist.setSelected(true);
 
-        resetBottomBar();
+        resetTime();
     }
 }
