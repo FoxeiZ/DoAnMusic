@@ -1,6 +1,9 @@
 package com.doan.music.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -16,14 +19,17 @@ import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
 import com.doan.music.utils.CustomAnimationUtils;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
 public class MainPlayerView {
 
+    private final Context context;
     private final TextView startTime, endTime, tvTitle, tvArtist;
-    private final ImageView playPauseBtn, loopBtn, shuffleBtn;
+    private final ImageView playPauseBtn, loopBtn, shuffleBtn, coverArt;
     private final SeekBar seekBar;
 
     public interface SongChangeListener {
@@ -31,7 +37,7 @@ public class MainPlayerView {
     }
 
     public MainPlayerView(Context context, RelativeLayout rootLayout, MusicModelManager musicModelManager) {
-
+        this.context = context;
         MainPlayer mainPlayer = musicModelManager.getMainPlayer();
 
         rootLayout.setAlpha(0);
@@ -43,6 +49,7 @@ public class MainPlayerView {
         seekBar = rootLayout.findViewById(R.id.customSeekBar);
         CardView playPauseCardView = rootLayout.findViewById(R.id.playPauseCardView);
         playPauseBtn = rootLayout.findViewById(R.id.playPauseBtn);
+        coverArt = rootLayout.findViewById(R.id.coverArt);
 
         startTime = rootLayout.findViewById(R.id.currentTime);
         endTime = rootLayout.findViewById(R.id.endTime);
@@ -154,11 +161,30 @@ public class MainPlayerView {
         seekBar.setProgress(0);
     }
 
+
+    public void setCoverArt(Uri albumArtUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                    context.getContentResolver(), albumArtUri);
+            bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getHeight(), bitmap.getHeight(), true);
+            coverArt.setImageBitmap(bitmap);
+
+        } catch (FileNotFoundException exception) {
+            coverArt.setImageResource(R.drawable.audiotrack_icon);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void setPlay(MusicModel model) {
         tvTitle.setText(model.getTitle());
         tvArtist.setText(model.getArtist());
+        setCoverArt(model.getAlbumArtUri());
+
         tvTitle.setSelected(true);
         tvArtist.setSelected(true);
+
         resetBottomBar();
     }
 }
