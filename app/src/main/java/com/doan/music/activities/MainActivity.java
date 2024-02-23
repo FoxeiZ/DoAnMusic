@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         }).attach();
 
         mainPlayerView = new MainPlayerView(this, mainPlayerLayout, musicModelManager);
-        miniControlView = new MiniControlView(this, miniControlLayout, mainPlayerView, musicModelManager);
+        miniControlView = new MiniControlView(this, miniControlLayout, musicModelManager);
         // Done layout init
     }
 
@@ -163,10 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
     public MusicModelManager getMusicModelManager() {
         return musicModelManager;
-    }
-
-    public void setMusicModelManager(MusicModelManager musicModelManager) {
-        this.musicModelManager = musicModelManager;
     }
 
     private void somethingMusicList() {

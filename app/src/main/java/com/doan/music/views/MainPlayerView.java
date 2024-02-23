@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -107,11 +106,7 @@ public class MainPlayerView {
         });
 
         loopBtn.setOnClickListener(view -> {
-            loopBtn.startAnimation(AnimationUtils.loadAnimation(
-                    context,
-                    R.anim.fadein
-            ));
-
+            CustomAnimationUtils.startAnimation(loopBtn, context, R.anim.fadein);
             switch (mainPlayer.getPlaybackMode()) {
                 case PLAYBACK_MODE_NORMAL:
                     mainPlayer.setPlaybackMode(PlaybackMode.PLAYBACK_MODE_LOOP_ALL);
@@ -130,10 +125,7 @@ public class MainPlayerView {
             }
         });
         shuffleBtn.setOnClickListener(view -> {
-            shuffleBtn.startAnimation(AnimationUtils.loadAnimation(
-                    context,
-                    R.anim.fadein
-            ));
+            CustomAnimationUtils.startAnimation(shuffleBtn, context, R.anim.fadein);
             if (mainPlayer.isShuffle()) {
                 mainPlayer.setShuffle(false);
                 shuffleBtn.setImageResource(R.drawable.shuffle_icon);
