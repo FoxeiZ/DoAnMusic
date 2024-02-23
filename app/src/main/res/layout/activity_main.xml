@@ -1,127 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/slidingUpPanel"
+    android:id="@+id/drawerLayout"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="bottom"
-    sothree:umanoPanelHeight="64dp"
-    sothree:umanoShadowHeight="4dp"
-    app:umanoParallaxOffset="120dp"
-    app:umanoScrollableView="@id/mainPlayer"
     tools:context=".activities.MainActivity">
 
-    <RelativeLayout
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/slidingUpPanel"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        sothree:umanoPanelHeight="64dp"
+        sothree:umanoShadowHeight="4dp"
+        app:umanoParallaxOffset="120dp"
+        app:umanoScrollableView="@id/mainPlayer">
 
-        <LinearLayout
-            android:id="@+id/navbarTop"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp">
-
-                <ImageView
-                    android:id="@+id/menuBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:minWidth="34dp"
-                    android:minHeight="34dp"
-                    android:contentDescription="@string/contentDescription"
-                    android:src="@drawable/menu_icon" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true">
-
-                    <ImageView
-                        android:id="@+id/searchBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="24dp"
-                        android:layout_gravity="center_vertical"
-                        android:minWidth="28dp"
-                        android:minHeight="28dp"
-                        android:contentDescription="@string/contentDescription"
-                        android:src="@drawable/search_icon" />
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/profileBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        app:cardCornerRadius="14dp">
-
-                        <ImageView
-                            android:id="@+id/profileIcon"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:scaleType="centerCrop"
-                            android:contentDescription="@string/contentDescription"
-                            app:srcCompat="@mipmap/ic_launcher_round" />
-                    </androidx.cardview.widget.CardView>
-                </LinearLayout>
-
-            </RelativeLayout>
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
+            <FrameLayout
+                android:id="@+id/content_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:tabIndicatorFullWidth="true"
-                app:tabMode="scrollable"
-                app:tabPaddingEnd="24dp"
-                app:tabPaddingStart="24dp">
+                android:layout_alignParentTop="true">
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/songs" />
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+            </FrameLayout>
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/playlist" />
+            <LinearLayout
+                android:id="@+id/navbarTop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:orientation="vertical">
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/album" />
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:tabIndicatorFullWidth="true"
+                    app:tabMode="scrollable"
+                    app:tabPaddingEnd="24dp"
+                    app:tabPaddingStart="24dp">
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/artists" />
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/songs" />
 
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/genres" />
-            </com.google.android.material.tabs.TabLayout>
-        </LinearLayout>
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/playlist" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/navbarTop"
-            android:layout_marginTop="24dp">
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/album" />
 
-        </androidx.viewpager2.widget.ViewPager2>
-    </RelativeLayout>
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/artists" />
 
-    <include layout="@layout/mini_slide_up_layout" />
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/genres" />
+                </com.google.android.material.tabs.TabLayout>
+            </LinearLayout>
 
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/navbarTop"
+                android:layout_marginTop="24dp">
+
+            </androidx.viewpager2.widget.ViewPager2>
+        </RelativeLayout>
+
+        <include layout="@layout/mini_slide_up_layout" />
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/app_drawer"
+        app:headerLayout="@layout/nav_header">
+
+    </com.google.android.material.navigation.NavigationView>
+</androidx.drawerlayout.widget.DrawerLayout>

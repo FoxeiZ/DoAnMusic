@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="HardcodedText">
+
+    <item
+        android:id="@+id/menu_search"
+        android:title="Search"
+        android:icon="@drawable/search_icon"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_profile"
+        android:title="Profile"
+        android:icon="@mipmap/ic_launcher"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_history"
+        android:title="History" />
+    <item
+        android:id="@+id/menu_about"
+        android:title="About" />
+</menu>

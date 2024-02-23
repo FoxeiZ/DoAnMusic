@@ -2,11 +2,6 @@ package com.doan.music.activities;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,18 +9,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.doan.music.views.MainPlayerView;
 import com.doan.music.R;
 import com.doan.music.adapter.ViewPagerAdapter;
 import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
+import com.doan.music.views.MainPlayerView;
 import com.doan.music.views.MiniControlView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.sothree.slidinguppanel.PanelSlideListener;
@@ -41,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private ViewPager2 mainContentVP;
+    private TabLayout tabLayout;
 
     private MusicModelManager musicModelManager;
 
@@ -56,23 +67,64 @@ public class MainActivity extends AppCompatActivity {
     private MiniControlView miniControlView;
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d("", "onOptionsItemSelected: " + item.getTitle());
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        int itemId = item.getItemId();
+        if (itemId == R.id.nav_music) {
+            mainContentVP.setCurrentItem(0);
+        } else if (itemId == R.id.nav_settings) {
+            setContentView(R.layout.activity_splash);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         slidingUpPanel = findViewById(R.id.slidingUpPanel);
-        ViewPager2 content = findViewById(R.id.content);
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        mainContentVP = findViewById(R.id.content);
+        tabLayout = findViewById(R.id.tabLayout);
         mainPlayerLayout = findViewById(R.id.mainPlayer);
         miniControlLayout = findViewById(R.id.miniControl);
+
+        // init drawer |
+        //             | init appbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //             | init actionbar
+        ActionBar actionbar = getSupportActionBar();
+        assert actionbar != null;
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setDisplayShowTitleEnabled(false);
+        //             | init drawer nav
+        drawerLayout = findViewById(R.id.drawerLayout);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        //             | init navView click event
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        navigationView.setNavigationItemSelectedListener(this::onOptionsItemSelected);
+        // drawer done |
 
         slidingUpPanel.setDragView(R.id.miniControl);
         slidingUpPanel.addPanelSlideListener(new PanelSlideListener() {
             @Override
             public void onPanelSlide(@NonNull View view, float v) {
-                miniControlLayout.setAlpha((-v+1));
-                miniControlLayout.setTranslationY(32*v);
-                mainPlayerLayout.setAlpha(Math.min(v*2, 1f));
+                miniControlLayout.setAlpha((-v + 1));
+                miniControlLayout.setTranslationY(32 * v);
+                mainPlayerLayout.setAlpha(Math.min(v * 2, 1f));
             }
 
             @Override
@@ -86,12 +138,16 @@ public class MainActivity extends AppCompatActivity {
                 if (beforeState == PanelState.DRAGGING) {
                     if (afterState == PanelState.EXPANDED) {
                         miniControlLayout.setVisibility(View.GONE);
+                        mainContentVP.setVisibility(View.GONE);
                         slidingUpPanel.setDragView(R.id.holdSlide);
-                    } else if (afterState == PanelState.COLLAPSED || afterState == PanelState.ANCHORED) {
+                    } else if (afterState == PanelState.COLLAPSED) {
                         slidingUpPanel.setDragView(R.id.miniControl);
+                    } else if (afterState == PanelState.ANCHORED) {
+                        slidingUpPanel.setPanelState(PanelState.EXPANDED);
                     }
                 } else if (beforeState == PanelState.EXPANDED && afterState == PanelState.DRAGGING) {
                     miniControlLayout.setVisibility(View.VISIBLE);
+                    mainContentVP.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -103,9 +159,10 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
 
+        // init tab
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, musicModelManager);
-        content.setAdapter(viewPagerAdapter);
-        new TabLayoutMediator(tabLayout, content, (tab, position) -> {
+        mainContentVP.setAdapter(viewPagerAdapter);
+        new TabLayoutMediator(tabLayout, mainContentVP, (tab, position) -> {
             switch (position) {
                 case 0:
                     tab.setText("Songs");
