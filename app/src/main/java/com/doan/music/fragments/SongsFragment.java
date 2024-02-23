@@ -18,7 +18,6 @@ import com.doan.music.models.MusicModelManager;
 
 public class SongsFragment extends BaseFragment {
     private MusicModelManager musicModelManager;
-    private SongItemAdapter songItemAdapter;
 
     private RecyclerView musicRecyclerView;
 
@@ -44,7 +43,7 @@ public class SongsFragment extends BaseFragment {
         MainActivity mainActivity = (MainActivity) requireActivity();
         musicModelManager = mainActivity.getMusicModelManager();
 
-        songItemAdapter = new SongItemAdapter(musicModelManager);
+        SongItemAdapter songItemAdapter = new SongItemAdapter(musicModelManager);
         musicRecyclerView.setAdapter(songItemAdapter);
 
         musicModelManager.subscribeToRecyclerManager("SongFragmentRV", musicRecyclerView);

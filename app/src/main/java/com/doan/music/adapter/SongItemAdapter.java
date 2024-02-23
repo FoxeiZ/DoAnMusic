@@ -1,7 +1,6 @@
 package com.doan.music.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import com.doan.music.R;
 import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
 
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 

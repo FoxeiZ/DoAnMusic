@@ -1,6 +1,5 @@
 package com.doan.music.views;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -13,42 +12,27 @@ import androidx.cardview.widget.CardView;
 import com.doan.music.MainPlayer;
 import com.doan.music.R;
 import com.doan.music.enums.PlaybackMode;
+import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
+import com.doan.music.utils.CustomAnimationUtils;
 
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 
 public class MainPlayerView {
-    private MusicModelManager musicModelManager;
-    private Context context;
-    private RelativeLayout rootLayout;
 
-    private MainPlayer mainPlayer;
-    private TextView startTime, endTime;
-    private ImageView playPauseBtn, loopBtn, shuffleBtn;
-    private SeekBar seekBar;
-
-    private Timer playerTimer;
-
-    public boolean isPlaying() {
-        return mainPlayer.isPlaying();
-    }
+    private final TextView startTime, endTime, tvTitle, tvArtist;
+    private final ImageView playPauseBtn, loopBtn, shuffleBtn;
+    private final SeekBar seekBar;
 
     public interface SongChangeListener {
         void onChanged(int position);
     }
 
-    public MainPlayer getMainPlayer() {
-        return mainPlayer;
-    }
-
     public MainPlayerView(Context context, RelativeLayout rootLayout, MusicModelManager musicModelManager) {
-        this.context = context;
-        this.rootLayout = rootLayout;
-        this.musicModelManager = musicModelManager;
+
+        MainPlayer mainPlayer = musicModelManager.getMainPlayer();
 
         rootLayout.setAlpha(0);
 
@@ -62,10 +46,27 @@ public class MainPlayerView {
 
         startTime = rootLayout.findViewById(R.id.currentTime);
         endTime = rootLayout.findViewById(R.id.endTime);
+        tvArtist = rootLayout.findViewById(R.id.infoArtist);
+        tvTitle = rootLayout.findViewById(R.id.infoTitle);
 
-        mainPlayer = new MainPlayer(musicModelManager);
+        musicModelManager.addOnPauseButtonListener(new MusicModelManager.PauseButtonListener() {
+            @Override
+            public void onPause() {
+                CustomAnimationUtils.startAnimation(playPauseBtn, context, R.anim.fadein, R.drawable.pause_icon);
+            }
 
-        playPauseCardView.setOnClickListener(view -> onPauseButton());
+            @Override
+            public void onPlay() {
+                CustomAnimationUtils.startAnimation(playPauseBtn, context, R.anim.fadein, R.drawable.play_icon);
+            }
+        });
+
+        musicModelManager.setOnCurrentTimeUpdateListener(currentTime -> {
+            seekBar.setProgress(currentTime);
+            startTime.setText(convertTimeToString(currentTime));
+        });
+
+        playPauseCardView.setOnClickListener(view -> musicModelManager.onPaused());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -95,13 +96,10 @@ public class MainPlayerView {
             }
 
             @Override
-            public void onNotPlay() {
-                playPauseBtn.animate();
-                playPauseBtn.setImageResource(R.drawable.pause_icon);
+            public void onPause() {
+                CustomAnimationUtils.startAnimation(playPauseBtn, context, R.anim.fadein, R.drawable.pause_icon);
             }
         });
-
-        mainPlayer.setMediaCompletionListener(this::stopPlayerTimer);
 
         loopBtn.setOnClickListener(view -> {
             loopBtn.startAnimation(AnimationUtils.loadAnimation(
@@ -126,7 +124,6 @@ public class MainPlayerView {
                     break;
             }
         });
-
         shuffleBtn.setOnClickListener(view -> {
             shuffleBtn.startAnimation(AnimationUtils.loadAnimation(
                     context,
@@ -141,8 +138,8 @@ public class MainPlayerView {
             shuffleBtn.setImageResource(R.drawable.shuffle_on_icon);
         });
 
-        nextBtn.setOnClickListener(view -> mainPlayer.next(true));
-        previousBtn.setOnClickListener(view -> mainPlayer.prev(true));
+        nextBtn.setOnClickListener(view -> musicModelManager.onNext(true));
+        previousBtn.setOnClickListener(view -> musicModelManager.onPrev(true));
     }
 
     public String convertTimeToString(int intTime) {
@@ -157,46 +154,11 @@ public class MainPlayerView {
         seekBar.setProgress(0);
     }
 
-    public void startNewTimer() {
-        playerTimer = new Timer();
-        playerTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                ((Activity) context).runOnUiThread(() -> {
-                    final int getCurrentDuration = mainPlayer.getCurrentTime();
-                    seekBar.setProgress(getCurrentDuration);
-                    startTime.setText(convertTimeToString(getCurrentDuration));
-                });
-            }
-        }, 1000, 1000);
-    }
-
-    public void onPauseButton() {
-        playPauseBtn.startAnimation(AnimationUtils.loadAnimation(
-                context,
-                R.anim.fadein
-        ));
-
-        if (mainPlayer.isPlaying()) {
-            stopPlayerTimer();
-            mainPlayer.pause();
-            playPauseBtn.setImageResource(R.drawable.play_icon);
-        } else {
-            startNewTimer();
-            mainPlayer.play();
-            playPauseBtn.setImageResource(R.drawable.pause_icon);
-        }
-    }
-
-    public void stopPlayerTimer() {
-        if (playerTimer != null) {
-            playerTimer.purge();
-            playerTimer.cancel();
-        }
-    }
-
-    public void destroy() {
-        stopPlayerTimer();
-        mainPlayer.destroy();
+    public void setPlay(MusicModel model) {
+        tvTitle.setText(model.getTitle());
+        tvArtist.setText(model.getArtist());
+        tvTitle.setSelected(true);
+        tvArtist.setSelected(true);
+        resetBottomBar();
     }
 }

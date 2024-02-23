@@ -35,6 +35,10 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:layout_gravity="center"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
             android:text="@string/nothing_played"
             android:textColor="#FFF"
             android:textSize="20sp" />
@@ -51,6 +55,6 @@
             android:src="@drawable/next_song_button" />
     </LinearLayout>
 
-    <include layout="@layout/main_player_layout" />
+    <include layout="@layout/main_player_layout"/>
 
 </FrameLayout>

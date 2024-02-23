@@ -1,12 +1,15 @@
 package com.doan.music;
 
 import android.media.MediaPlayer;
+import android.widget.Toast;
 
 import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainPlayer {
 
@@ -29,6 +32,7 @@ public class MainPlayer {
     }
 
     private boolean isShuffle = false;
+    private boolean isManualPause = false;
     private final MusicModelManager musicModelManager;
     private MediaPlayer mediaPlayer;
 
@@ -37,7 +41,7 @@ public class MainPlayer {
 
     public interface MediaPreparedListener {
         void onPlay(int totalDuration);
-        void onNotPlay();
+        void onPause();
     }
 
     public interface MediaCompletionListener {
@@ -62,7 +66,7 @@ public class MainPlayer {
 
             final int getTotalDuration = mp.getDuration();
             if (!mediaPlayer.isPlaying()) {
-                mediaPreparedListener.onNotPlay();
+                mediaPreparedListener.onPause();
             }
             mediaPreparedListener.onPlay(getTotalDuration);
             mp.start();
@@ -71,7 +75,7 @@ public class MainPlayer {
         mediaPlayer.setOnCompletionListener(mp -> {
             if (mediaCompletionListener == null) return;
             mediaCompletionListener.listener();
-            if (mp.isPlaying())
+            if (!isManualPause)
                 next();
         });
     }
@@ -80,30 +84,47 @@ public class MainPlayer {
         return mediaPlayer.isPlaying();
     }
 
-    public boolean play(MusicModel model) {
-        return true;
+    public void play(MusicModel model) {
+        isManualPause = false;
+        mediaPlayer.reset();
+        try {
+            mediaPlayer.setDataSource(musicModelManager.getContext(), model.getFileUri());
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(musicModelManager.getContext(), "Unable to play this track.", Toast.LENGTH_LONG).show();
+        }
     }
 
-    public boolean play(int position) {
+    public void play(int position) {
         MusicModel model = musicModelManager.get(position);
-        return true;
+        play(model);
     }
 
-    public boolean play() {
+    public void play() {
+        isManualPause = false;
         mediaPlayer.start();
-        return true;
     }
 
-    public boolean pause() {
+    public void pause() {
+        isManualPause = true;
         mediaPlayer.pause();
-        return !mediaPlayer.isPlaying();
+    }
+
+    public void reset() {
+        mediaPlayer.reset();
     }
 
     public void prev(boolean force) {
         int nextPosition = musicModelManager.getCurrentSongIndex();
 
         if (PLAYBACK_MODE != PlaybackMode.PLAYBACK_MODE_LOOP || force) {
-            nextPosition = nextPosition -1;
+            if (isShuffle) {
+                Random random = new Random();
+                nextPosition = random.nextInt(musicModelManager.getItemCount());
+            } else {
+                nextPosition = nextPosition - 1;
+            }
         }
 
         if (nextPosition < 0) {
@@ -126,7 +147,12 @@ public class MainPlayer {
 
         int nextPosition = musicModelManager.getCurrentSongIndex();
         if (PLAYBACK_MODE != PlaybackMode.PLAYBACK_MODE_LOOP || force) {
-            nextPosition = nextPosition + 1;
+            if (isShuffle) {
+                Random random = new Random();
+                nextPosition = random.nextInt(musicModelManager.getItemCount());
+            } else {
+                nextPosition = nextPosition + 1;
+            }
         }
 
         if (nextPosition >= models.size()) {

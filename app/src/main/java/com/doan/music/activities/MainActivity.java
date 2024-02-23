@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     if (afterState == PanelState.EXPANDED) {
                         miniControlLayout.setVisibility(View.GONE);
                         slidingUpPanel.setDragView(R.id.holdSlide);
-                    } else if (afterState == PanelState.COLLAPSED) {
+                    } else if (afterState == PanelState.COLLAPSED || afterState == PanelState.ANCHORED) {
                         slidingUpPanel.setDragView(R.id.miniControl);
                     }
                 } else if (beforeState == PanelState.EXPANDED && afterState == PanelState.DRAGGING) {
@@ -198,6 +198,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mainPlayerView.destroy();
+        musicModelManager.destroy();
     }
 }
