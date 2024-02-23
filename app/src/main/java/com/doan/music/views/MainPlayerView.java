@@ -2,8 +2,8 @@ package com.doan.music.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -164,8 +164,8 @@ public class MainPlayerView {
 
     public void setCoverArt(Uri albumArtUri) {
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
-                    context.getContentResolver(), albumArtUri);
+            ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(), albumArtUri);
+            Bitmap bitmap = ImageDecoder.decodeBitmap(source);
             bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getHeight(), bitmap.getHeight(), true);
             coverArt.setImageBitmap(bitmap);
 
