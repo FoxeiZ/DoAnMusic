@@ -78,7 +78,6 @@ public class MainPlayerView {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    mainPlayer.seekTo(i);
                     int currentTime = mainPlayer.getCurrentTime();
                     startTime.setText(convertTimeToString(currentTime));
                 }
@@ -86,12 +85,11 @@ public class MainPlayerView {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                mainPlayer.seekTo(seekBar.getProgress());
             }
         });
 
