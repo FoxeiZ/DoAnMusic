@@ -9,8 +9,8 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
 
     private View view;
 
-    private int SwipeXThreshold;
-    private int SwipeYThreshold;
+    private final int SwipeXThreshold;
+    private final int SwipeYThreshold;
 
     private float firstTouchX;
     private float firstTouchY;
@@ -30,7 +30,7 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
         this.SwipeYThreshold = SwipeThreshold;
     }
 
-    public boolean onDown(MotionEvent event) {
+    private boolean onDown(MotionEvent event) {
         firstTouchX = event.getX();
         firstTouchY = event.getY();
         return true;
@@ -51,7 +51,7 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     public void afterUpListener(float distanceX, float distanceY) {
     }
 
-    public boolean onUp(MotionEvent event) {
+    private boolean onUp(MotionEvent event) {
         boolean result = false;
         float endTouchX = event.getX();
         float endTouchY = event.getY();
@@ -81,7 +81,7 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     public void onSwipeListener(MotionEvent event, float x, float y) {
     }
 
-    public boolean onSwipe(MotionEvent event) {
+    private boolean onSwipe(MotionEvent event) {
         Log.d("", "onSwipe: event.getX=" + event.getX() + " event.getY=" + event.getY());
         float x = event.getX() - firstTouchX + viewX;
         float y = event.getY() - firstTouchY + viewY;
