@@ -92,7 +92,7 @@ public class MainPlayerView {
 
             @Override
             public void afterUpListener(float distanceX, float distanceY) {
-                coverArtHolder.animate().translationX(getViewX()).translationY(getViewX());
+                coverArtHolder.animate().translationX(getViewX()).translationY(getViewX()).setDuration(500);
             }
 
             @Override

@@ -52,7 +52,7 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     }
 
     public boolean onUp(MotionEvent event) {
-        boolean res = false;
+        boolean result = false;
         float endTouchX = event.getX();
         float endTouchY = event.getY();
 
@@ -64,18 +64,18 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
                 onSwipeRight();
             else
                 onSwipeLeft();
-            res = true;
+            result = true;
         }
         if (Math.abs(distanceY) >= SwipeYThreshold) {
             if (distanceY > 0)
                 onSwipeUp();
             else
                 onSwipeDown();
-            res = true;
+            result = true;
         }
 
         afterUpListener(distanceX, distanceY);
-        return res;
+        return result;
     }
 
     public void onSwipeListener(MotionEvent event, float x, float y) {
