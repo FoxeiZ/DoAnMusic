@@ -22,36 +22,41 @@
             android:layout_height="6dp"
             android:backgroundTint="@color/white"
             android:backgroundTintMode="src_over"
-            android:background="@drawable/round_10"/>
+            android:background="@drawable/round_10" />
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/coverArtHolder"
+    <LinearLayout
+        android:id="@+id/cardViewHolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/holdSlide"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="#3C4E59"
-        app:cardCornerRadius="10dp">
+        android:layout_marginTop="8dp">
 
-        <ImageView
-            android:id="@+id/coverArt"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/coverArtHolder"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:minHeight="350dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/contentDescription"
-            app:srcCompat="@drawable/audiotrack_icon">
-        </ImageView>
-    </androidx.cardview.widget.CardView>
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#3C4E59"
+            app:cardCornerRadius="10dp">
+
+            <ImageView
+                android:id="@+id/coverArt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:minHeight="350dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/contentDescription"
+                app:srcCompat="@drawable/audiotrack_icon" />
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/coverArtHolder"
+        android:layout_below="@+id/cardViewHolder"
         android:layout_marginTop="20dp"
         android:orientation="vertical">
 

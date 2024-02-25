@@ -18,7 +18,7 @@ import com.doan.music.models.MusicModelManager;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class SongItemAdapter extends BaseItemAdapter {
+public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public RelativeLayout adapterRoot;
@@ -34,7 +34,6 @@ public class SongItemAdapter extends BaseItemAdapter {
             songTitle = itemView.findViewById(R.id.songTitle);
             songArtist = itemView.findViewById(R.id.songArtist);
             songDuration = itemView.findViewById(R.id.songDuration);
-
         }
 
         public void setPlaying(boolean playing) {
@@ -79,7 +78,7 @@ public class SongItemAdapter extends BaseItemAdapter {
         holder.songTitle.setText(song.getTitle());
         holder.songArtist.setText(song.getArtist());
 
-        holder.adapterRoot.setOnClickListener(view -> songChangeListener.onChanged(position));
+        holder.adapterRoot.setOnClickListener(view -> musicModelManager.onChanged(position));
     }
 
     @Override

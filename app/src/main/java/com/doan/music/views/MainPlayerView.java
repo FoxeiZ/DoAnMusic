@@ -1,11 +1,14 @@
 package com.doan.music.views;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -18,6 +21,7 @@ import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.MusicModel;
 import com.doan.music.models.MusicModelManager;
 import com.doan.music.utils.CustomAnimationUtils;
+import com.doan.music.utils.OnSwipeTouchListener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,6 +42,7 @@ public class MainPlayerView {
         void onChanged(int position);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public MainPlayerView(Context context, RelativeLayout rootLayout, MusicModelManager musicModelManager) {
         this.context = context;
         MainPlayer mainPlayer = musicModelManager.getMainPlayer();
@@ -74,6 +79,30 @@ public class MainPlayerView {
             if (!pauseTimeUpdate) {
                 seekBar.setProgress(currentPercent);
                 startTime.setText(convertTimeToString(currentTime));
+            }
+        });
+
+        LinearLayout cardViewHolder = rootLayout.findViewById(R.id.cardViewHolder);
+        CardView coverArtHolder = rootLayout.findViewById(R.id.coverArtHolder);
+        cardViewHolder.setOnTouchListener(new OnSwipeTouchListener(coverArtHolder, 300) {
+            @Override
+            public void onSwipeListener(MotionEvent event, float x, float y) {
+                coverArtHolder.setX(x);
+            }
+
+            @Override
+            public void afterUpListener(float distanceX, float distanceY) {
+                coverArtHolder.animate().translationX(getViewX()).translationY(getViewX());
+            }
+
+            @Override
+            public void onSwipeRight() {
+                musicModelManager.onNext(true);
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                musicModelManager.onPrev(true);
             }
         });
 
