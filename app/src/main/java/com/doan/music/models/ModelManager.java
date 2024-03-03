@@ -15,6 +15,7 @@ import com.doan.music.activities.MainActivity;
 import com.doan.music.views.MainPlayerView;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Timer;
@@ -80,6 +81,8 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         } else {
             Toast.makeText(this.getContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
         }
+        albumModels.sort(Comparator.comparing(AlbumModel::getAlbumName));
+        musicModels.sort(Comparator.comparing(MusicModel::getTitle));
     }
 
     public Context getContext() {

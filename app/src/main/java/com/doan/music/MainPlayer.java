@@ -175,6 +175,9 @@ public class MainPlayer {
     }
 
     public int getCurrentPercent() {
+        if (getDuration() == 0) {
+            return 0;
+        }
         return getCurrentTime() * 100 / getDuration();
     }
 

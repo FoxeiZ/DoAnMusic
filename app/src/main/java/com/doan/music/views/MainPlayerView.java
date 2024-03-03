@@ -88,17 +88,37 @@ public class MainPlayerView {
 
             @Override
             public void afterUpListener(float distanceX, float distanceY) {
-                coverArtHolder.animate().translationX(getViewX()).translationY(getViewX()).setDuration(500);
+                if (Math.abs(distanceX) < getSwipeXThreshold()) {
+                    coverArtHolder.animate().translationX(0).setDuration(500);
+                }
             }
 
             @Override
             public void onSwipeRight() {
-                modelManager.onNext(true);
+                coverArtHolder.animate()
+                        .translationX(-cardViewHolder.getWidth())
+                        .setDuration(100)
+                        .withEndAction(() -> {
+                            coverArtHolder.setX(coverArtHolder.getWidth());
+                            coverArtHolder.animate()
+                                    .translationX(0)
+                                    .setDuration(400);
+                            modelManager.onNext(true);
+                        });
             }
 
             @Override
             public void onSwipeLeft() {
-                modelManager.onPrev(true);
+                coverArtHolder.animate()
+                        .translationX(cardViewHolder.getWidth())
+                        .setDuration(100)
+                        .withEndAction(() -> {
+                            coverArtHolder.setX(-coverArtHolder.getWidth());
+                            coverArtHolder.animate()
+                                    .translationX(0)
+                                    .setDuration(400);
+                            modelManager.onPrev(true);
+                        });
             }
         });
 

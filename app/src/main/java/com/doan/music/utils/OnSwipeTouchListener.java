@@ -1,7 +1,6 @@
 package com.doan.music.utils;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,8 +16,8 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     private final float viewX;
     private final float viewY;
 
-    public float getViewX() {
-        return viewX;
+    public int getSwipeXThreshold() {
+        return SwipeXThreshold;
     }
 
     public OnSwipeTouchListener(View view, int SwipeThreshold) {
@@ -82,7 +81,6 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     }
 
     private boolean onSwipe(MotionEvent event) {
-        Log.d("", "onSwipe: event.getX=" + event.getX() + " event.getY=" + event.getY());
         float x = event.getX() - firstTouchX + viewX;
         float y = event.getY() - firstTouchY + viewY;
         onSwipeListener(event, x, y);
