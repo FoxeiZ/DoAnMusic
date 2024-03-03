@@ -2,12 +2,10 @@ package com.doan.music.activities;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
-import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,12 +22,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.doan.music.R;
 import com.doan.music.adapter.ViewPagerAdapter;
-import com.doan.music.models.MusicModel;
-import com.doan.music.models.MusicModelManager;
+import com.doan.music.models.ModelManager;
 import com.doan.music.views.MainPlayerView;
 import com.doan.music.views.MiniControlView;
 import com.google.android.material.navigation.NavigationView;
@@ -39,8 +37,6 @@ import com.sothree.slidinguppanel.PanelSlideListener;
 import com.sothree.slidinguppanel.PanelState;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 200;
@@ -48,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
-    private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private ViewPager2 mainContentVP;
-    private TabLayout tabLayout;
+    private ViewPager2 vpMainContent;
 
-    private MusicModelManager musicModelManager;
+    private ModelManager modelManager;
+    private MainPlayerView mainPlayerView;
+    private MiniControlView miniControlView;
 
     public MainPlayerView getMainPlayerView() {
         return mainPlayerView;
@@ -63,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
         return miniControlView;
     }
 
-    private MainPlayerView mainPlayerView;
-    private MiniControlView miniControlView;
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Log.d("", "onOptionsItemSelected: " + item.getTitle());
@@ -74,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
         }
         int itemId = item.getItemId();
         if (itemId == R.id.nav_music) {
-            mainContentVP.setCurrentItem(0);
+            vpMainContent.setCurrentItem(0);
         } else if (itemId == R.id.nav_settings) {
-            setContentView(R.layout.activity_splash);
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -94,10 +88,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         slidingUpPanel = findViewById(R.id.slidingUpPanel);
-        mainContentVP = findViewById(R.id.content);
-        tabLayout = findViewById(R.id.tabLayout);
+        vpMainContent = findViewById(R.id.content);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
         mainPlayerLayout = findViewById(R.id.mainPlayer);
         miniControlLayout = findViewById(R.id.miniControl);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.d("SharedPreferences", "notifications: " + sharedPref.getBoolean("notifications", false));
 
         // init drawer |
         //             | init appbar
@@ -109,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setDisplayShowTitleEnabled(false);
         //             | init drawer nav
-        drawerLayout = findViewById(R.id.drawerLayout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
@@ -129,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelStateChanged(@NonNull View view, @NonNull PanelState beforeState, @NonNull PanelState afterState) {
-                Log.d("",String.format(
+                Log.d("", String.format(
                         "onPanelStateChanged: beforeState=%s, afterState=%s",
                         beforeState.name(),
                         afterState.name()
@@ -138,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 if (beforeState == PanelState.DRAGGING) {
                     if (afterState == PanelState.EXPANDED) {
                         miniControlLayout.setVisibility(View.GONE);
-                        mainContentVP.setVisibility(View.GONE);
+                        vpMainContent.setVisibility(View.GONE);
                         slidingUpPanel.setDragView(R.id.holdSlide);
                     } else if (afterState == PanelState.COLLAPSED) {
                         slidingUpPanel.setDragView(R.id.miniControl);
@@ -147,22 +144,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else if (beforeState == PanelState.EXPANDED && afterState == PanelState.DRAGGING) {
                     miniControlLayout.setVisibility(View.VISIBLE);
-                    mainContentVP.setVisibility(View.VISIBLE);
+                    vpMainContent.setVisibility(View.VISIBLE);
                 }
             }
         });
 
         // permissions check, init music db
         if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            somethingMusicList();
+            modelManager = new ModelManager(this);
         } else {
             requestPermissions(new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
 
         // init tab
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, musicModelManager);
-        mainContentVP.setAdapter(viewPagerAdapter);
-        new TabLayoutMediator(tabLayout, mainContentVP, (tab, position) -> {
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
+        vpMainContent.setAdapter(viewPagerAdapter);
+        new TabLayoutMediator(tabLayout, vpMainContent, (tab, position) -> {
             switch (position) {
                 case 0:
                     tab.setText("Songs");
@@ -176,54 +173,16 @@ public class MainActivity extends AppCompatActivity {
                 case 3:
                     tab.setText("Artists");
                     break;
-                case 4:
-                    tab.setText("Genres");
-                    break;
             }
         }).attach();
 
-        mainPlayerView = new MainPlayerView(this, mainPlayerLayout, musicModelManager);
-        miniControlView = new MiniControlView(this, miniControlLayout, musicModelManager);
+        mainPlayerView = new MainPlayerView(this, mainPlayerLayout, modelManager);
+        miniControlView = new MiniControlView(this, miniControlLayout, modelManager);
         // Done layout init
     }
 
-    private ArrayList<MusicModel> createMusicList() {
-        ArrayList<MusicModel> musicModels = new ArrayList<>();
-        ContentResolver contentResolver = getContentResolver();
-
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = contentResolver.query(uri, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            if (cursor.moveToFirst()) {
-                do {
-                    long cursorId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-                    long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                    String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-                    String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-
-                    String songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
-                    if (songDuration == null) {
-                        continue;
-                    }
-
-                    musicModels.add(new MusicModel(title, artist, songDuration, false, cursorId, albumId));
-                } while (cursor.moveToNext());
-                cursor.close();
-            }
-        } else {
-            Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show();
-        }
-
-        return musicModels;
-    }
-
-    public MusicModelManager getMusicModelManager() {
-        return musicModelManager;
-    }
-
-    private void somethingMusicList() {
-        musicModelManager = new MusicModelManager(createMusicList(), MainActivity.this);
+    public ModelManager getModelManager() {
+        return modelManager;
     }
 
     @Override
@@ -231,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            somethingMusicList();
+            modelManager = new ModelManager(this);
         } else {
             Toast.makeText(this, "Permission Denied. Exiting...", Toast.LENGTH_LONG).show();
             finish();
@@ -242,8 +201,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (slidingUpPanel.getPanelState() != PanelState.COLLAPSED) {
             slidingUpPanel.setPanelState(PanelState.COLLAPSED);
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -251,6 +209,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        musicModelManager.destroy();
+        modelManager.destroy();
     }
 }

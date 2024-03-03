@@ -1,50 +1,89 @@
 package com.doan.music.models;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.MainPlayer;
 import com.doan.music.activities.MainActivity;
-import com.doan.music.adapter.BaseItemAdapter;
 import com.doan.music.views.MainPlayerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MusicModelManager implements MainPlayerView.SongChangeListener {
-    private final ArrayList<MusicModel> originModel;
+public class ModelManager implements MainPlayerView.SongChangeListener {
+    private final ArrayList<MusicModel> musicModels = new ArrayList<>();
+    private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
     private final HashMap<String, RecyclerView> recyclerViews = new HashMap<>();
-
-    public Context getContext() {
-        return context;
-    }
-
     private final Context context;
-    private MusicModel currentSong;
     private final MainPlayer mainPlayer;
-    private Timer playerTimer;
-
     private final ArrayList<PauseButtonListener> pauseButtonListeners = new ArrayList<>();
     private final ArrayList<NextButtonListener> nextButtonListeners = new ArrayList<>();
     private final ArrayList<PrevButtonListener> prevButtonListeners = new ArrayList<>();
+    private MusicModel currentSong;
+    private Timer playerTimer;
     private CurrentTimeUpdateListener currentTimeUpdateListener;
 
-    public interface PauseButtonListener {
-        void onPlay();
-        void onPause();
+    public ModelManager(Context context) {
+        this.context = context;
+
+        loadData();
+        currentSong = musicModels.get(1);
+
+        mainPlayer = new MainPlayer(this);
+        mainPlayer.setMediaCompletionListener(this::stopPlayerTimer);
     }
-    public interface NextButtonListener {
-        void onClick();
+
+    private void albumBuilder(Cursor cursor) {
+        long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+        String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+        if (albumModels.stream().anyMatch(albumModel -> albumModel.getAlbumId() == albumId))
+            return;
+        albumModels.add(new AlbumModel(albumId, albumName));
     }
-    public interface PrevButtonListener {
-        void onClick();
+
+    private void musicBuilder(Cursor cursor) {
+        String songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+        long songId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+        long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+        String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+        String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+        musicModels.add(new MusicModel(title, artist, songDuration, false, songId, albumId));
     }
-    public interface CurrentTimeUpdateListener {
-        void onUpdate(int currentTime, int currentPercent);
+
+    private void loadData() {
+        ContentResolver contentResolver = getContext().getContentResolver();
+
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = contentResolver.query(uri, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
+                do {
+                    if (cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)) == null)
+                        continue;
+
+                    albumBuilder(cursor);
+                    musicBuilder(cursor);
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        } else {
+            Toast.makeText(this.getContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     public void addOnPauseButtonListener(PauseButtonListener pauseButtonListener) {
@@ -63,17 +102,8 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         this.currentTimeUpdateListener = currentTimeUpdateListener;
     }
 
-    public MusicModelManager(ArrayList<MusicModel> models, Context context) {
-        this.originModel = models;
-        this.context = context;
-        currentSong = models.get(0);
-
-        mainPlayer = new MainPlayer(this);
-        mainPlayer.setMediaCompletionListener(this::stopPlayerTimer);
-    }
-
     public int getCurrentSongIndex() {
-        return originModel.indexOf(currentSong);
+        return musicModels.indexOf(currentSong);
     }
 
     public void subscribeToRecyclerManager(String rvName, RecyclerView recyclerView) {
@@ -81,26 +111,13 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         recyclerViews.put(rvName, recyclerView);
     }
 
-    private void notifyChangeForRV(int position) {
-        for (RecyclerView rv: recyclerViews.values()) {
-            BaseItemAdapter adapter = (BaseItemAdapter) rv.getAdapter();
-            assert adapter != null;
-            adapter.notifyItemChanged(position);
-        }
+    public ArrayList<MusicModel> getMusicModels() {
+        return musicModels;
     }
 
-    public MusicModel get(int position) {
-        return originModel.get(position);
+    public ArrayList<AlbumModel> getAlbumModels() {
+        return albumModels;
     }
-
-    public ArrayList<MusicModel> getOriginModel() {
-        return originModel;
-    }
-
-    public ArrayList<MusicModel> getCurrentModel() {
-        return originModel;
-    }
-
 
     public void startNewTimer() {
         playerTimer = new Timer();
@@ -132,7 +149,7 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         }
 
         // change prop for old song
-        int oldPosition = originModel.indexOf(currentSong);
+        int oldPosition = musicModels.indexOf(currentSong);
         if (oldPosition == position) {
             mainPlayer.seekTo(0);
             mainPlayer.play();
@@ -141,11 +158,14 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         }
         currentSong.setPlaying(false);
         // set new prop
-        currentSong = originModel.get(position);
+        currentSong = musicModels.get(position);
         currentSong.setPlaying(true);
         // notify to RecyclerView
-        notifyChangeForRV(oldPosition);
-        notifyChangeForRV(position);
+        recyclerViews.forEach((s, recyclerView) -> {
+            RecyclerView.Adapter adapter = Objects.requireNonNull(recyclerView.getAdapter());
+            adapter.notifyItemChanged(position);
+            adapter.notifyItemChanged(oldPosition);
+        });
 
         MainActivity mainActivity = ((MainActivity) context);
         mainActivity.getMainPlayerView().setPlay(currentSong);
@@ -197,12 +217,26 @@ public class MusicModelManager implements MainPlayerView.SongChangeListener {
         return mainPlayer.isPlaying();
     }
 
-    public int getItemCount() {
-        return originModel.size();
-    }
-
     public void destroy() {
         stopPlayerTimer();
         mainPlayer.destroy();
+    }
+
+    public interface PauseButtonListener {
+        void onPlay();
+
+        void onPause();
+    }
+
+    public interface NextButtonListener {
+        void onClick();
+    }
+
+    public interface PrevButtonListener {
+        void onClick();
+    }
+
+    public interface CurrentTimeUpdateListener {
+        void onUpdate(int currentTime, int currentPercent);
     }
 }

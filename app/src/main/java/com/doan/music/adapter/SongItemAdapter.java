@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.R;
+import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
-import com.doan.music.models.MusicModelManager;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +52,8 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
     }
 
 
-    public SongItemAdapter(MusicModelManager musicModelManager) {
-        super(musicModelManager);
+    public SongItemAdapter(ModelManager modelManager) {
+        super(modelManager);
     }
 
     @SuppressLint("InflateParams")
@@ -65,7 +65,7 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull SongItemAdapter.ViewHolder holder, int position) {
-        MusicModel song = musicModelManager.get(position);
+        MusicModel song = modelManager.getMusicModels().get(position);
         holder.setPlaying(song.isPlaying());
 
         String songDuration = song.getDuration();
@@ -78,11 +78,11 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
         holder.songTitle.setText(song.getTitle());
         holder.songArtist.setText(song.getArtist());
 
-        holder.adapterRoot.setOnClickListener(view -> musicModelManager.onChanged(position));
+        holder.adapterRoot.setOnClickListener(view -> modelManager.onChanged(position));
     }
 
     @Override
     public int getItemCount() {
-        return musicModelManager.getItemCount();
+        return modelManager.getMusicModels().size();
     }
 }

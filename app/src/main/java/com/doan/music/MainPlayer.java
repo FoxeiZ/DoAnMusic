@@ -4,8 +4,8 @@ import android.media.MediaPlayer;
 import android.widget.Toast;
 
 import com.doan.music.enums.PlaybackMode;
+import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
-import com.doan.music.models.MusicModelManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class MainPlayer {
 
     private boolean isShuffle = false;
     private boolean isManualPause = false;
-    private final MusicModelManager musicModelManager;
+    private final ModelManager modelManager;
     private MediaPlayer mediaPlayer;
 
     private MediaPreparedListener mediaPreparedListener;
@@ -56,8 +56,8 @@ public class MainPlayer {
         this.mediaCompletionListener = mediaCompletionListener;
     }
 
-    public MainPlayer(MusicModelManager musicModelManager) {
-        this.musicModelManager = musicModelManager;
+    public MainPlayer(ModelManager modelManager) {
+        this.modelManager = modelManager;
         this.mediaPlayer = new MediaPlayer();
 
         // init event listener
@@ -88,16 +88,16 @@ public class MainPlayer {
         isManualPause = false;
         mediaPlayer.reset();
         try {
-            mediaPlayer.setDataSource(musicModelManager.getContext(), model.getFileUri());
+            mediaPlayer.setDataSource(modelManager.getContext(), model.getFileUri());
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(musicModelManager.getContext(), "Unable to play this track.", Toast.LENGTH_LONG).show();
+            Toast.makeText(modelManager.getContext(), "Unable to play this track.", Toast.LENGTH_LONG).show();
         }
     }
 
     public void play(int position) {
-        MusicModel model = musicModelManager.get(position);
+        MusicModel model = modelManager.getMusicModels().get(position);
         play(model);
     }
 
@@ -116,12 +116,12 @@ public class MainPlayer {
     }
 
     public void prev(boolean force) {
-        int nextPosition = musicModelManager.getCurrentSongIndex();
+        int nextPosition = modelManager.getCurrentSongIndex();
 
         if (PLAYBACK_MODE != PlaybackMode.PLAYBACK_MODE_LOOP || force) {
             if (isShuffle) {
                 Random random = new Random();
-                nextPosition = random.nextInt(musicModelManager.getItemCount());
+                nextPosition = random.nextInt(modelManager.getMusicModels().size());
             } else {
                 nextPosition = nextPosition - 1;
             }
@@ -129,13 +129,13 @@ public class MainPlayer {
 
         if (nextPosition < 0) {
             if (PLAYBACK_MODE == PlaybackMode.PLAYBACK_MODE_LOOP_ALL) {
-                nextPosition = musicModelManager.getItemCount() - 1;
+                nextPosition = modelManager.getMusicModels().size() - 1;
             }
             else {
                 nextPosition = 0;
             }
         }
-        musicModelManager.onChanged(nextPosition);
+        modelManager.onChanged(nextPosition);
     }
 
     public void prev() {
@@ -143,13 +143,13 @@ public class MainPlayer {
     }
 
     public void next(boolean force) {
-        ArrayList<MusicModel> models = musicModelManager.getCurrentModel();
+        ArrayList<MusicModel> models = modelManager.getMusicModels();
 
-        int nextPosition = musicModelManager.getCurrentSongIndex();
+        int nextPosition = modelManager.getCurrentSongIndex();
         if (PLAYBACK_MODE != PlaybackMode.PLAYBACK_MODE_LOOP || force) {
             if (isShuffle) {
                 Random random = new Random();
-                nextPosition = random.nextInt(musicModelManager.getItemCount());
+                nextPosition = random.nextInt(modelManager.getMusicModels().size());
             } else {
                 nextPosition = nextPosition + 1;
             }
@@ -163,7 +163,7 @@ public class MainPlayer {
                 nextPosition = models.size() - 1;
             }
         }
-        musicModelManager.onChanged(nextPosition);
+        modelManager.onChanged(nextPosition);
     }
 
     public void seekTo(int pos) {

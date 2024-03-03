@@ -2,13 +2,13 @@ package com.doan.music.adapter;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.doan.music.models.MusicModelManager;
+import com.doan.music.models.ModelManager;
 
 public abstract class BaseItemAdapter<VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
-    final MusicModelManager musicModelManager;
+    final ModelManager modelManager;
 
-    BaseItemAdapter(MusicModelManager musicModelManager) {
-        this.musicModelManager = musicModelManager;
+    BaseItemAdapter(ModelManager modelManager) {
+        this.modelManager = modelManager;
     }
 }

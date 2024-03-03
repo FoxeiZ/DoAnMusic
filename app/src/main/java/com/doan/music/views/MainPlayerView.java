@@ -18,8 +18,8 @@ import androidx.cardview.widget.CardView;
 import com.doan.music.MainPlayer;
 import com.doan.music.R;
 import com.doan.music.enums.PlaybackMode;
+import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
-import com.doan.music.models.MusicModelManager;
 import com.doan.music.utils.CustomAnimationUtils;
 import com.doan.music.utils.OnSwipeTouchListener;
 
@@ -38,14 +38,10 @@ public class MainPlayerView {
 
     private boolean pauseTimeUpdate;
 
-    public interface SongChangeListener {
-        void onChanged(int position);
-    }
-
     @SuppressLint("ClickableViewAccessibility")
-    public MainPlayerView(Context context, RelativeLayout rootLayout, MusicModelManager musicModelManager) {
+    public MainPlayerView(Context context, RelativeLayout rootLayout, ModelManager modelManager) {
         this.context = context;
-        MainPlayer mainPlayer = musicModelManager.getMainPlayer();
+        MainPlayer mainPlayer = modelManager.getMainPlayer();
 
         rootLayout.setAlpha(0);
 
@@ -63,7 +59,7 @@ public class MainPlayerView {
         tvArtist = rootLayout.findViewById(R.id.infoArtist);
         tvTitle = rootLayout.findViewById(R.id.infoTitle);
 
-        musicModelManager.addOnPauseButtonListener(new MusicModelManager.PauseButtonListener() {
+        modelManager.addOnPauseButtonListener(new ModelManager.PauseButtonListener() {
             @Override
             public void onPause() {
                 CustomAnimationUtils.startAnimation(playPauseBtn, context, R.anim.fadein, R.drawable.pause_icon);
@@ -75,7 +71,7 @@ public class MainPlayerView {
             }
         });
 
-        musicModelManager.setOnCurrentTimeUpdateListener((currentTime, currentPercent) -> {
+        modelManager.setOnCurrentTimeUpdateListener((currentTime, currentPercent) -> {
             if (!pauseTimeUpdate) {
                 seekBar.setProgress(currentPercent);
                 startTime.setText(convertTimeToString(currentTime));
@@ -97,16 +93,16 @@ public class MainPlayerView {
 
             @Override
             public void onSwipeRight() {
-                musicModelManager.onNext(true);
+                modelManager.onNext(true);
             }
 
             @Override
             public void onSwipeLeft() {
-                musicModelManager.onPrev(true);
+                modelManager.onPrev(true);
             }
         });
 
-        playPauseCardView.setOnClickListener(view -> musicModelManager.onPaused());
+        playPauseCardView.setOnClickListener(view -> modelManager.onPaused());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -170,8 +166,8 @@ public class MainPlayerView {
             shuffleBtn.setImageResource(R.drawable.shuffle_on_icon);
         });
 
-        nextBtn.setOnClickListener(view -> musicModelManager.onNext(true));
-        previousBtn.setOnClickListener(view -> musicModelManager.onPrev(true));
+        nextBtn.setOnClickListener(view -> modelManager.onNext(true));
+        previousBtn.setOnClickListener(view -> modelManager.onPrev(true));
     }
 
     public String convertTimeToString(int intTime) {
@@ -209,5 +205,9 @@ public class MainPlayerView {
         tvArtist.setSelected(true);
 
         resetTime();
+    }
+
+    public interface SongChangeListener {
+        void onChanged(int position);
     }
 }
