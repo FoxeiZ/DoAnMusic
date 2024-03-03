@@ -126,12 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelStateChanged(@NonNull View view, @NonNull PanelState beforeState, @NonNull PanelState afterState) {
-                Log.d("", String.format(
-                        "onPanelStateChanged: beforeState=%s, afterState=%s",
-                        beforeState.name(),
-                        afterState.name()
-                ));
-
                 if (beforeState == PanelState.DRAGGING) {
                     if (afterState == PanelState.EXPANDED) {
                         miniControlLayout.setVisibility(View.GONE);
