@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.doan.music.R;
 import com.doan.music.models.AlbumModel;
 import com.doan.music.models.ModelManager;
@@ -27,6 +28,10 @@ public class AlbumItemAdapter extends BaseItemAdapter<AlbumItemAdapter.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull AlbumItemAdapter.ViewHolder holder, int position) {
         AlbumModel albumModel = modelManager.getAlbumModels().get(position);
+        Glide.with(holder.itemView)
+                .load(albumModel.getAlbumArtUri())
+                .error(R.drawable.audiotrack_icon)
+                .into(holder.ivAlbumCover);
         holder.tvAlbumName.setText(albumModel.getAlbumName());
     }
 
@@ -36,8 +41,8 @@ public class AlbumItemAdapter extends BaseItemAdapter<AlbumItemAdapter.ViewHolde
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView ivAlbumCover;
-        public TextView tvAlbumName;
+        public final ImageView ivAlbumCover;
+        public final TextView tvAlbumName;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

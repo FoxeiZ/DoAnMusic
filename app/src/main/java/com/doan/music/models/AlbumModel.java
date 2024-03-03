@@ -1,5 +1,7 @@
 package com.doan.music.models;
 
+import android.content.ContentUris;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -45,5 +47,11 @@ public class AlbumModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeLong(albumId);
+    }
+
+    public Uri getAlbumArtUri() {
+        return ContentUris.withAppendedId(
+                Uri.parse("content://media/external/audio/albumart"), albumId
+        );
     }
 }
