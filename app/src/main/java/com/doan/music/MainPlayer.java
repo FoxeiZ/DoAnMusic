@@ -171,6 +171,9 @@ public class MainPlayer {
     }
 
     public int getCurrentTime() {
+        if (mediaPlayer == null) {
+            return 0;
+        }
         return mediaPlayer.getCurrentPosition();
     }
 

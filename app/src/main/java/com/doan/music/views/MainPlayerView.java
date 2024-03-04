@@ -3,9 +3,6 @@ package com.doan.music.views;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.ImageDecoder;
-import android.net.Uri;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
+import com.bumptech.glide.Glide;
 import com.doan.music.MainPlayer;
 import com.doan.music.R;
 import com.doan.music.enums.PlaybackMode;
@@ -23,8 +21,6 @@ import com.doan.music.models.MusicModel;
 import com.doan.music.utils.CustomAnimationUtils;
 import com.doan.music.utils.OnSwipeTouchListener;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -202,32 +198,22 @@ public class MainPlayerView {
         seekBar.setProgress(0);
     }
 
-    public void setCoverArt(Uri albumArtUri) {
-        try {
-            ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(), albumArtUri);
-            Bitmap bitmap = ImageDecoder.decodeBitmap(source);
-            bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getHeight(), bitmap.getHeight(), true);
-            coverArt.setImageBitmap(bitmap);
-
-        } catch (FileNotFoundException exception) {
-            coverArt.setImageResource(R.drawable.audiotrack_icon);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void setPlay(MusicModel model) {
-        tvTitle.setText(model.getTitle());
-        tvArtist.setText(model.getArtist());
-        ((Activity) context).runOnUiThread(() -> setCoverArt(model.getAlbumArtUri()));
+        ((Activity) context).runOnUiThread(() -> {
+            tvTitle.setText(model.getTitle());
+            tvArtist.setText(model.getArtist());
+            Glide.with(context).load(model.getAlbumArtUri()).error(R.drawable.audiotrack_icon).into(coverArt);
 
-        tvTitle.setSelected(true);
-        tvArtist.setSelected(true);
+            tvTitle.setSelected(true);
+            tvArtist.setSelected(true);
 
-        resetTime();
+            resetTime();
+        });
     }
 
     public interface SongChangeListener {
         void onChanged(int position);
+
+        void onChanged(MusicModel model);
     }
 }

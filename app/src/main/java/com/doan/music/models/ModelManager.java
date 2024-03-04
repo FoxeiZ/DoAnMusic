@@ -24,6 +24,7 @@ import java.util.TimerTask;
 public class ModelManager implements MainPlayerView.SongChangeListener {
     private final ArrayList<MusicModel> musicModels = new ArrayList<>();
     private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
+    private final HashMap<Long, ArrayList<MusicModel>> modelHashMap = new HashMap<>();
     private final HashMap<String, RecyclerView> recyclerViews = new HashMap<>();
     private final Context context;
     private final MainPlayer mainPlayer;
@@ -49,7 +50,9 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
         if (albumModels.stream().anyMatch(albumModel -> albumModel.getAlbumId() == albumId))
             return;
-        albumModels.add(new AlbumModel(albumId, albumName));
+        modelHashMap.put(albumId, new ArrayList<>());
+        AlbumModel albumModel = new AlbumModel(albumId, albumName);
+        albumModels.add(albumModel);
     }
 
     private void musicBuilder(Cursor cursor) {
@@ -58,7 +61,10 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
         String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
         String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
-        musicModels.add(new MusicModel(title, artist, songDuration, false, songId, albumId));
+
+        MusicModel model = new MusicModel(title, artist, songDuration, false, songId, albumId);
+        musicModels.add(model);
+        Objects.requireNonNull(modelHashMap.get(albumId)).add(model);
     }
 
     private void loadData() {
@@ -122,6 +128,10 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         return albumModels;
     }
 
+    public ArrayList<MusicModel> getMusicFromAlbum(long albumId) {
+        return modelHashMap.get(albumId);
+    }
+
     public void startNewTimer() {
         playerTimer = new Timer();
         playerTimer.scheduleAtFixedRate(new TimerTask() {
@@ -176,6 +186,11 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
 
         mainPlayer.play(currentSong);
         startNewTimer();
+    }
+
+    @Override
+    public void onChanged(MusicModel model) {
+        onChanged(musicModels.indexOf(model));
     }
 
     public void onPaused() {

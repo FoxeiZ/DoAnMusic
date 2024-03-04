@@ -27,16 +27,14 @@ public class AlbumFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        MainActivity mainActivity = (MainActivity) requireActivity();
-        modelManager = mainActivity.getModelManager();
+        modelManager = MainActivity.getModelManager();
 
         AlbumItemAdapter songItemAdapter = new AlbumItemAdapter(modelManager);
         albumRecyclerView.setAdapter(songItemAdapter);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_album, container, false);
 

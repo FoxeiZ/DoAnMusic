@@ -1,5 +1,6 @@
 package com.doan.music.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,10 +12,12 @@ import com.doan.music.models.MusicModel;
 import com.doan.music.utils.CustomAnimationUtils;
 
 public class MiniControlView {
+    private final Context context;
     private final TextView mini_c_songTitle;
     private final ImageView mini_c_playIv;
 
     public MiniControlView(Context context, LinearLayout rootLayout, ModelManager modelManager) {
+        this.context = context;
 
         LinearLayout mini_c_playBtn = rootLayout.findViewById(R.id.mini_c_playBtn);
         mini_c_playIv = rootLayout.findViewById(R.id.mini_c_playIv);
@@ -37,8 +40,10 @@ public class MiniControlView {
     }
 
     public void setPlay(MusicModel model) {
-        mini_c_songTitle.setText(model.getTitle());
-        mini_c_songTitle.setSelected(true);
-        mini_c_playIv.setImageResource(R.drawable.pause_icon);
+        ((Activity) context).runOnUiThread(() -> {
+            mini_c_songTitle.setText(model.getTitle());
+            mini_c_songTitle.setSelected(true);
+            mini_c_playIv.setImageResource(R.drawable.pause_icon);
+        });
     }
 }

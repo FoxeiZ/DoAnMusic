@@ -37,6 +37,8 @@ import com.sothree.slidinguppanel.PanelSlideListener;
 import com.sothree.slidinguppanel.PanelState;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.lang.ref.WeakReference;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 200;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 vpMainContent;
 
     private ModelManager modelManager;
+    public static WeakReference<ModelManager> managerWeakReference;
     private MainPlayerView mainPlayerView;
     private MiniControlView miniControlView;
 
@@ -146,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         // permissions check, init music db
         if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             modelManager = new ModelManager(this);
+            managerWeakReference = new WeakReference<>(modelManager);
         } else {
             requestPermissions(new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
         }
@@ -175,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
         // Done layout init
     }
 
-    public ModelManager getModelManager() {
-        return modelManager;
+    public static ModelManager getModelManager() {
+        return managerWeakReference.get();
     }
 
     @Override
@@ -185,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             modelManager = new ModelManager(this);
+            managerWeakReference = new WeakReference<>(modelManager);
         } else {
             Toast.makeText(this, "Permission Denied. Exiting...", Toast.LENGTH_LONG).show();
             finish();
@@ -204,5 +209,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         modelManager.destroy();
+        managerWeakReference = null;
     }
 }
