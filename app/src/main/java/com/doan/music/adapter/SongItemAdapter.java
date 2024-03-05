@@ -22,10 +22,7 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public RelativeLayout adapterRoot;
-        public TextView songTitle;
-        public TextView songArtist;
-        public TextView songDuration;
-
+        public TextView songTitle, songArtist, songDuration;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

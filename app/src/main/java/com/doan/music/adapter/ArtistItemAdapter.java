@@ -15,34 +15,34 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.doan.music.R;
 import com.doan.music.activities.DetailAlbumActivity;
-import com.doan.music.models.AlbumModel;
+import com.doan.music.models.ArtistModel;
 import com.doan.music.models.ModelManager;
 
-public class AlbumItemAdapter extends BaseItemAdapter<AlbumItemAdapter.ViewHolder> {
-    public AlbumItemAdapter(ModelManager modelManager) {
+public class ArtistItemAdapter extends BaseItemAdapter<ArtistItemAdapter.ViewHolder> {
+    public ArtistItemAdapter(ModelManager modelManager) {
         super(modelManager);
     }
 
     @NonNull
     @Override
-    public AlbumItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ArtistItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_grid_item, null));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AlbumItemAdapter.ViewHolder holder, int position) {
-        AlbumModel albumModel = modelManager.getAlbumModels().get(position);
+    public void onBindViewHolder(@NonNull ArtistItemAdapter.ViewHolder holder, int position) {
+        ArtistModel artistModel = modelManager.getArtistModels().get(position);
         Glide.with(holder.itemView)
-                .load(albumModel.getAlbumArtUri())
+                .load(artistModel.getAlbumArtUri())
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .error(R.drawable.audiotrack_icon)
                 .into(holder.ivCover);
-        holder.tvName.setText(albumModel.getAlbumName());
+        holder.tvName.setText(artistModel.getArtistName());
         holder.itemView.setOnClickListener(view -> {
             Context context = view.getContext();
             Intent i = new Intent(context, DetailAlbumActivity.class);
             i.putExtra("pos", position);
-            i.putExtra("albumId", albumModel.getAlbumId());
+            i.putExtra("artistId", artistModel.getArtistId());
             context.startActivity(i);
         });
     }
@@ -63,4 +63,3 @@ public class AlbumItemAdapter extends BaseItemAdapter<AlbumItemAdapter.ViewHolde
         }
     }
 }
-

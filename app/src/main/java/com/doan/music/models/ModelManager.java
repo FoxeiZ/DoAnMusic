@@ -24,22 +24,28 @@ import java.util.TimerTask;
 public class ModelManager implements MainPlayerView.SongChangeListener {
     private final ArrayList<MusicModel> musicModels = new ArrayList<>();
     private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
-    private final HashMap<Long, ArrayList<MusicModel>> modelHashMap = new HashMap<>();
+    private final ArrayList<ArtistModel> artistModels = new ArrayList<>();
+
+    private final HashMap<Long, ArrayList<MusicModel>> albumMap = new HashMap<>();
+    private final HashMap<Long, ArrayList<MusicModel>> artistMap = new HashMap<>();
+
     private final HashMap<String, RecyclerView> recyclerViews = new HashMap<>();
+
     private final Context context;
     private final MainPlayer mainPlayer;
+
     private final ArrayList<PauseButtonListener> pauseButtonListeners = new ArrayList<>();
     private final ArrayList<NextButtonListener> nextButtonListeners = new ArrayList<>();
     private final ArrayList<PrevButtonListener> prevButtonListeners = new ArrayList<>();
+    private CurrentTimeUpdateListener currentTimeUpdateListener;
+
     private MusicModel currentSong;
     private Timer playerTimer;
-    private CurrentTimeUpdateListener currentTimeUpdateListener;
 
     public ModelManager(Context context) {
         this.context = context;
 
         loadData();
-
         if (musicModels.size() > 1) {
             currentSong = musicModels.get(0);
         }
@@ -53,21 +59,36 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
         if (albumModels.stream().anyMatch(albumModel -> albumModel.getAlbumId() == albumId))
             return;
-        modelHashMap.put(albumId, new ArrayList<>());
+        albumMap.put(albumId, new ArrayList<>());
         AlbumModel albumModel = new AlbumModel(albumId, albumName);
         albumModels.add(albumModel);
     }
 
-    private void musicBuilder(Cursor cursor) {
+    private void artistBuilder(Cursor cursor) {
+        long artistId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID));
+        long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+        String artistName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+        if (artistModels.stream().anyMatch(albumModel -> albumModel.getArtistId() == artistId))
+            return;
+
+        artistMap.put(artistId, new ArrayList<>());
+        ArtistModel artistModel = new ArtistModel(artistId, albumId, artistName);
+        artistModels.add(artistModel);
+    }
+
+    private void songBuilder(Cursor cursor) {
         String songDuration = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
         long songId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
         long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+        long artistId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID));
+
         String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
         String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
 
         MusicModel model = new MusicModel(title, artist, songDuration, false, songId, albumId);
         musicModels.add(model);
-        Objects.requireNonNull(modelHashMap.get(albumId)).add(model);
+        Objects.requireNonNull(albumMap.get(albumId)).add(model);
+        Objects.requireNonNull(artistMap.get(artistId)).add(model);
     }
 
     private void loadData() {
@@ -82,8 +103,9 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
                     if (cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)) == null)
                         continue;
 
+                    artistBuilder(cursor);
                     albumBuilder(cursor);
-                    musicBuilder(cursor);
+                    songBuilder(cursor);
                 } while (cursor.moveToNext());
                 cursor.close();
             }
@@ -91,6 +113,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
             Toast.makeText(this.getContext(), "Something went wrong...", Toast.LENGTH_SHORT).show();
         }
         albumModels.sort(Comparator.comparing(AlbumModel::getAlbumName));
+        artistModels.sort(Comparator.comparing(ArtistModel::getArtistName));
         musicModels.sort(Comparator.comparing(MusicModel::getTitle));
     }
 
@@ -131,8 +154,16 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         return albumModels;
     }
 
+    public ArrayList<ArtistModel> getArtistModels() {
+        return artistModels;
+    }
+
     public ArrayList<MusicModel> getMusicFromAlbum(long albumId) {
-        return modelHashMap.get(albumId);
+        return albumMap.get(albumId);
+    }
+
+    public ArrayList<MusicModel> getMusicFromArtist(long artistId) {
+        return artistMap.get(artistId);
     }
 
     public void startNewTimer() {

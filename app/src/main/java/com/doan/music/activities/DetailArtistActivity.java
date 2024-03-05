@@ -18,36 +18,37 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.doan.music.R;
-import com.doan.music.models.AlbumModel;
+import com.doan.music.models.ArtistModel;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
 
 import java.util.ArrayList;
 
-public class DetailAlbumActivity extends AppCompatActivity {
+public class DetailArtistActivity extends AppCompatActivity {
+
     private ListView listView;
-    private ImageView ivAlbumCover;
-    private TextView tvAlbumName;
+    private ImageView ivCover;
+    private TextView tvName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_album);
 
-        ivAlbumCover = findViewById(R.id.ivCover);
-        tvAlbumName = findViewById(R.id.tvName);
+        ivCover = findViewById(R.id.ivCover);
+        tvName = findViewById(R.id.tvName);
         listView = findViewById(R.id.listView);
 
         Intent intent = getIntent();
         int position = intent.getIntExtra("pos", 0);
-        long albumId = intent.getLongExtra("albumId", 0);
+        long albumId = intent.getLongExtra("artistId", 0);
 
         ModelManager modelManager = MainActivity.getModelManager();
-        AlbumModel albumModel = modelManager.getAlbumModels().get(position);
-        ArrayList<MusicModel> musicModels = modelManager.getMusicFromAlbum(albumId);
+        ArtistModel artistModel = modelManager.getArtistModels().get(position);
+        ArrayList<MusicModel> musicModels = modelManager.getMusicFromArtist(albumId);
 
-        tvAlbumName.setText(albumModel.getAlbumName());
-        Glide.with(this).load(albumModel.getAlbumArtUri()).into(ivAlbumCover);
+        tvName.setText(artistModel.getArtistName());
+        Glide.with(this).load(artistModel.getAlbumArtUri()).into(ivCover);
 
         DetailAlbumAdapter adapter = new DetailAlbumAdapter(
                 this,
@@ -62,9 +63,8 @@ public class DetailAlbumActivity extends AppCompatActivity {
     }
 }
 
-
-class DetailAlbumAdapter extends ArrayAdapter<MusicModel> {
-    public DetailAlbumAdapter(@NonNull Context context, int resource, @NonNull ArrayList<MusicModel> musicModels) {
+class DetailArtistAdapter extends ArrayAdapter<MusicModel> {
+    public DetailArtistAdapter(@NonNull Context context, int resource, @NonNull ArrayList<MusicModel> musicModels) {
         super(context, resource, musicModels);
     }
 

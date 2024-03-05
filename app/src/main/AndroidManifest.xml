@@ -16,6 +16,9 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".activities.DetailArtistActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.DetailAlbumActivity"
             android:exported="false" />
         <activity
