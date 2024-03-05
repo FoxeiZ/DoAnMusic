@@ -26,7 +26,7 @@ public class AlbumItemAdapter extends BaseItemAdapter<AlbumItemAdapter.ViewHolde
     @NonNull
     @Override
     public AlbumItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_grid_item, null));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_grid_item, parent, false));
     }
 
     @Override

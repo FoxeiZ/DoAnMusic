@@ -3,26 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="HardcodedText">
 
-    <group android:id="@+id/main_group">
+    <group>
         <item
             android:id="@+id/nav_music"
             android:icon="@drawable/library_music_icon"
             android:title="Music" />
 
         <item
-            android:id="@+id/nav_favourite"
             android:icon="@drawable/favorite_icon"
             android:title="Favourite" />
     </group>
 
-    <group android:id="@+id/more_group">
+    <group>
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings_icon"
             android:title="Settings" />
 
         <item
-            android:id="@+id/nav_about"
             android:icon="@drawable/about_icon"
             android:title="About" />
     </group>

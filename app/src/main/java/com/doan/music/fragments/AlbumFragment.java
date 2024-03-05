@@ -16,7 +16,6 @@ import com.doan.music.adapter.AlbumItemAdapter;
 import com.doan.music.models.ModelManager;
 
 public class AlbumFragment extends BaseFragment {
-    private ModelManager modelManager;
 
     private RecyclerView albumRecyclerView;
 
@@ -27,7 +26,7 @@ public class AlbumFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        modelManager = MainActivity.getModelManager();
+        ModelManager modelManager = MainActivity.getModelManager();
 
         AlbumItemAdapter songItemAdapter = new AlbumItemAdapter(modelManager);
         albumRecyclerView.setAdapter(songItemAdapter);

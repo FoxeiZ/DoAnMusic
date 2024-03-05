@@ -21,8 +21,10 @@ import java.util.concurrent.TimeUnit;
 public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public RelativeLayout adapterRoot;
-        public TextView songTitle, songArtist, songDuration;
+        public final RelativeLayout adapterRoot;
+        public final TextView songTitle;
+        public final TextView songArtist;
+        public final TextView songDuration;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

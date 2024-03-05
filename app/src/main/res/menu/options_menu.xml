@@ -5,20 +5,14 @@
     tools:ignore="HardcodedText">
 
     <item
-        android:id="@+id/menu_search"
         android:title="Search"
         android:icon="@drawable/search_icon"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/menu_profile"
         android:title="Profile"
         android:icon="@mipmap/ic_launcher"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/menu_history"
-        android:title="History" />
-    <item
-        android:id="@+id/menu_about"
-        android:title="About" />
+    <item android:title="History" />
+    <item android:title="About" />
 </menu>
