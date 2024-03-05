@@ -39,7 +39,10 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         this.context = context;
 
         loadData();
-        currentSong = musicModels.get(1);
+
+        if (musicModels.size() > 1) {
+            currentSong = musicModels.get(0);
+        }
 
         mainPlayer = new MainPlayer(this);
         mainPlayer.setMediaCompletionListener(this::stopPlayerTimer);
