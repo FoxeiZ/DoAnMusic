@@ -25,18 +25,15 @@ import com.doan.music.models.MusicModel;
 import java.util.ArrayList;
 
 public class DetailAlbumActivity extends AppCompatActivity {
-    private ListView listView;
-    private ImageView ivAlbumCover;
-    private TextView tvAlbumName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_album);
 
-        ivAlbumCover = findViewById(R.id.ivCover);
-        tvAlbumName = findViewById(R.id.tvName);
-        listView = findViewById(R.id.listView);
+        ImageView ivAlbumCover = findViewById(R.id.ivCover);
+        TextView tvAlbumName = findViewById(R.id.tvName);
+        ListView listView = findViewById(R.id.listView);
 
         Intent intent = getIntent();
         int position = intent.getIntExtra("pos", 0);

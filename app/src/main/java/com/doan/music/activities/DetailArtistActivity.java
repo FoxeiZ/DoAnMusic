@@ -26,31 +26,27 @@ import java.util.ArrayList;
 
 public class DetailArtistActivity extends AppCompatActivity {
 
-    private ListView listView;
-    private ImageView ivCover;
-    private TextView tvName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_album);
 
-        ivCover = findViewById(R.id.ivCover);
-        tvName = findViewById(R.id.tvName);
-        listView = findViewById(R.id.listView);
+        ImageView ivCover = findViewById(R.id.ivCover);
+        TextView tvName = findViewById(R.id.tvName);
+        ListView listView = findViewById(R.id.listView);
 
         Intent intent = getIntent();
         int position = intent.getIntExtra("pos", 0);
-        long albumId = intent.getLongExtra("artistId", 0);
+        long artistId = intent.getLongExtra("artistId", 0);
 
         ModelManager modelManager = MainActivity.getModelManager();
         ArtistModel artistModel = modelManager.getArtistModels().get(position);
-        ArrayList<MusicModel> musicModels = modelManager.getMusicFromArtist(albumId);
+        ArrayList<MusicModel> musicModels = modelManager.getMusicFromArtist(artistId);
 
         tvName.setText(artistModel.getArtistName());
         Glide.with(this).load(artistModel.getAlbumArtUri()).into(ivCover);
 
-        DetailAlbumAdapter adapter = new DetailAlbumAdapter(
+        DetailArtistAdapter adapter = new DetailArtistAdapter(
                 this,
                 R.layout.list_song_item,
                 musicModels

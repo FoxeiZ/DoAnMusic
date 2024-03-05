@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.doan.music.R;
-import com.doan.music.activities.DetailAlbumActivity;
+import com.doan.music.activities.DetailArtistActivity;
 import com.doan.music.models.ArtistModel;
 import com.doan.music.models.ModelManager;
 
@@ -26,21 +26,17 @@ public class ArtistItemAdapter extends BaseItemAdapter<ArtistItemAdapter.ViewHol
     @NonNull
     @Override
     public ArtistItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_grid_item, null));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_grid_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ArtistItemAdapter.ViewHolder holder, int position) {
         ArtistModel artistModel = modelManager.getArtistModels().get(position);
-        Glide.with(holder.itemView)
-                .load(artistModel.getAlbumArtUri())
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .error(R.drawable.audiotrack_icon)
-                .into(holder.ivCover);
+        Glide.with(holder.itemView).load(artistModel.getAlbumArtUri()).transition(DrawableTransitionOptions.withCrossFade()).error(R.drawable.audiotrack_icon).into(holder.ivCover);
         holder.tvName.setText(artistModel.getArtistName());
         holder.itemView.setOnClickListener(view -> {
             Context context = view.getContext();
-            Intent i = new Intent(context, DetailAlbumActivity.class);
+            Intent i = new Intent(context, DetailArtistActivity.class);
             i.putExtra("pos", position);
             i.putExtra("artistId", artistModel.getArtistId());
             context.startActivity(i);
@@ -49,7 +45,7 @@ public class ArtistItemAdapter extends BaseItemAdapter<ArtistItemAdapter.ViewHol
 
     @Override
     public int getItemCount() {
-        return modelManager.getAlbumModels().size();
+        return modelManager.getArtistModels().size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
