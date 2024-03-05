@@ -54,10 +54,15 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/constraintLayout"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="10.0sp"
-        android:layout_below="@+id/constraintLayout"
-        tools:listitem="@layout/list_song_item"></ListView>
+        tools:listitem="@layout/list_song_item" />
 
 </RelativeLayout>
