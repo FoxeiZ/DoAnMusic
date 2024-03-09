@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.doan.music.R;
@@ -35,6 +39,9 @@ public class DetailAlbumActivity extends AppCompatActivity {
         ImageView ivAlbumCover = findViewById(R.id.ivCover);
         CollapsingToolbarLayout collapsed = findViewById(R.id.collapsed);
         ListView listView = findViewById(R.id.listView);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
         int position = intent.getIntExtra("pos", 0);
@@ -57,6 +64,18 @@ public class DetailAlbumActivity extends AppCompatActivity {
             modelManager.onChanged(musicModels.get(i));
             adapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.options_menu, menu);
+        return true;
     }
 }
 

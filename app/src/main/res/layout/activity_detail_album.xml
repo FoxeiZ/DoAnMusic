@@ -20,7 +20,7 @@
             android:background="?attr/colorPrimary"
             app:title="@string/app_name"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|snap">
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout"
@@ -56,6 +56,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin" />
