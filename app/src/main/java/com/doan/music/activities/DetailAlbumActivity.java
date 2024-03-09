@@ -21,6 +21,7 @@ import com.doan.music.R;
 import com.doan.music.models.AlbumModel;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
 
@@ -32,7 +33,7 @@ public class DetailAlbumActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_album);
 
         ImageView ivAlbumCover = findViewById(R.id.ivCover);
-        TextView tvAlbumName = findViewById(R.id.tvName);
+        CollapsingToolbarLayout collapsed = findViewById(R.id.collapsed);
         ListView listView = findViewById(R.id.listView);
 
         Intent intent = getIntent();
@@ -43,7 +44,7 @@ public class DetailAlbumActivity extends AppCompatActivity {
         AlbumModel albumModel = modelManager.getAlbumModels().get(position);
         ArrayList<MusicModel> musicModels = modelManager.getMusicFromAlbum(albumId);
 
-        tvAlbumName.setText(albumModel.getAlbumName());
+        collapsed.setTitle(albumModel.getAlbumName());
         Glide.with(this).load(albumModel.getAlbumArtUri()).into(ivAlbumCover);
 
         DetailAlbumAdapter adapter = new DetailAlbumAdapter(
