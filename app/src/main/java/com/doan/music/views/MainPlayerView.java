@@ -19,10 +19,8 @@ import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
 import com.doan.music.utils.CustomAnimationUtils;
+import com.doan.music.utils.General;
 import com.doan.music.utils.OnSwipeTouchListener;
-
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainPlayerView {
@@ -55,6 +53,12 @@ public class MainPlayerView {
         tvArtist = rootLayout.findViewById(R.id.infoArtist);
         tvTitle = rootLayout.findViewById(R.id.infoTitle);
 
+        int last_index = modelManager.getCurrentSongIndex();
+        if (last_index >= 0) {
+            setPlay(modelManager.getCurrentSong());
+            endTime.setText(General.convertTimeToString(modelManager.getCurrentSong().getDuration()));
+        }
+
         modelManager.addOnPauseButtonListener(new ModelManager.PauseButtonListener() {
             @Override
             public void onPause() {
@@ -70,7 +74,7 @@ public class MainPlayerView {
         modelManager.setOnCurrentTimeUpdateListener((currentTime, currentPercent) -> {
             if (!pauseTimeUpdate) {
                 seekBar.setProgress(currentPercent);
-                startTime.setText(convertTimeToString(currentTime));
+                startTime.setText(General.convertTimeToString(currentTime));
             }
         });
 
@@ -124,7 +128,7 @@ public class MainPlayerView {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
                     int currentTime = mainPlayer.getDuration() * i / 100;
-                    startTime.setText(convertTimeToString(currentTime));
+                    startTime.setText(General.convertTimeToString(currentTime));
                 }
             }
 
@@ -143,7 +147,7 @@ public class MainPlayerView {
         mainPlayer.setMediaOnPreparedListener(new MainPlayer.MediaPreparedListener() {
             @Override
             public void onPlay(int totalDuration) {
-                endTime.setText(convertTimeToString(totalDuration));
+                endTime.setText(General.convertTimeToString(totalDuration));
             }
 
             @Override
@@ -184,13 +188,6 @@ public class MainPlayerView {
 
         nextBtn.setOnClickListener(view -> modelManager.onNext(true));
         previousBtn.setOnClickListener(view -> modelManager.onPrev(true));
-    }
-
-    public String convertTimeToString(int intTime) {
-        return String.format(Locale.getDefault(), "%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(intTime),
-                TimeUnit.MILLISECONDS.toSeconds(intTime) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(intTime)));
     }
 
     public void resetTime() {

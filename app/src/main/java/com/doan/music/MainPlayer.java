@@ -33,6 +33,7 @@ public class MainPlayer {
 
     private boolean isShuffle = false;
     private boolean isManualPause = false;
+
     private final ModelManager modelManager;
     private MediaPlayer mediaPlayer;
 
@@ -58,7 +59,7 @@ public class MainPlayer {
 
     public MainPlayer(ModelManager modelManager) {
         this.modelManager = modelManager;
-        this.mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
 
         // init event listener
         mediaPlayer.setOnPreparedListener(mp -> {
@@ -73,10 +74,9 @@ public class MainPlayer {
         });
 
         mediaPlayer.setOnCompletionListener(mp -> {
-            if (mediaCompletionListener == null) return;
+            if (mediaCompletionListener == null || isManualPause) return;
             mediaCompletionListener.listener();
-            if (!isManualPause)
-                next();
+            next();
         });
     }
 
@@ -96,11 +96,6 @@ public class MainPlayer {
         }
     }
 
-    public void play(int position) {
-        MusicModel model = modelManager.getMusicModels().get(position);
-        play(model);
-    }
-
     public void play() {
         isManualPause = false;
         mediaPlayer.start();
@@ -109,10 +104,6 @@ public class MainPlayer {
     public void pause() {
         isManualPause = true;
         mediaPlayer.pause();
-    }
-
-    public void reset() {
-        mediaPlayer.reset();
     }
 
     public void prev(boolean force) {
@@ -136,10 +127,6 @@ public class MainPlayer {
             }
         }
         modelManager.onChanged(nextPosition);
-    }
-
-    public void prev() {
-        prev(false);
     }
 
     public void next(boolean force) {
@@ -178,13 +165,18 @@ public class MainPlayer {
     }
 
     public int getCurrentPercent() {
-        if (getDuration() == 0) {
+        int duration = getDuration();
+        if (duration == 0) {
             return 0;
         }
-        return getCurrentTime() * 100 / getDuration();
+        return getCurrentTime() * 100 / duration;
     }
 
     public int getDuration() {
+        if (mediaPlayer == null) {
+            return 0;
+        }
+
         return mediaPlayer.getDuration();
     }
 

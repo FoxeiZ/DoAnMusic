@@ -25,6 +25,7 @@ import com.doan.music.R;
 import com.doan.music.models.AlbumModel;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
+import com.doan.music.utils.General;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
@@ -44,8 +45,11 @@ public class DetailAlbumActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        int position = intent.getIntExtra("pos", 0);
-        long albumId = intent.getLongExtra("albumId", 0);
+        int position = intent.getIntExtra("pos", -1);
+        long albumId = intent.getLongExtra("albumId", -1);
+
+        if (position < 0 || albumId < 0)
+            finish();
 
         ModelManager modelManager = MainActivity.getModelManager();
         AlbumModel albumModel = modelManager.getAlbumModels().get(position);
@@ -100,7 +104,7 @@ class DetailAlbumAdapter extends ArrayAdapter<MusicModel> {
 
         songTitle.setText(model.getTitle());
         songArtist.setText(model.getArtist());
-        songDuration.setText(model.getDuration());
+        songDuration.setText(General.convertTimeToString(model.getDuration()));
 
         if (model.isPlaying()) {
             currentItemView.setBackgroundResource(R.drawable.round_10_color);

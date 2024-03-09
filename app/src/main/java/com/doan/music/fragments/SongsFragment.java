@@ -30,6 +30,8 @@ public class SongsFragment extends BaseFragment {
         SongItemAdapter songItemAdapter = new SongItemAdapter(modelManager);
         musicRecyclerView.setAdapter(songItemAdapter);
 
+        musicRecyclerView.scrollToPosition(Math.max(0, modelManager.getCurrentSongIndex() - 1));
+
         modelManager.subscribeToRecyclerManager("SongFragmentRV", musicRecyclerView);
     }
 
@@ -41,6 +43,7 @@ public class SongsFragment extends BaseFragment {
         musicRecyclerView = view.findViewById(R.id.musicRecyclerView);
         musicRecyclerView.setHasFixedSize(true);
         musicRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
         return view;
     }
 

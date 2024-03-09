@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.doan.music.R;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
-
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
+import com.doan.music.utils.General;
 
 public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder> {
 
@@ -68,10 +66,7 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
         holder.setPlaying(song.isPlaying());
 
         String songDuration = song.getDuration();
-        String buildDuration = String.format(Locale.getDefault(), "%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(Long.parseLong(songDuration)),
-                TimeUnit.MILLISECONDS.toSeconds(Long.parseLong(songDuration)) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(Long.parseLong(songDuration))));
+        String buildDuration = General.convertTimeToString(songDuration);
         holder.songDuration.setText(buildDuration);
 
         holder.songTitle.setText(song.getTitle());

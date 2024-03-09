@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="HardcodedText">
 
-    <group>
+    <group android:id="@+id/id1">
         <item
             android:id="@+id/nav_music"
             android:icon="@drawable/library_music_icon"
@@ -14,7 +14,7 @@
             android:title="Favourite" />
     </group>
 
-    <group>
+    <group android:id="@+id/id2">
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings_icon"

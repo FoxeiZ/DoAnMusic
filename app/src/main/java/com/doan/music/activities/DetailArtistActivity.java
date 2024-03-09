@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -15,12 +18,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.doan.music.R;
 import com.doan.music.models.ArtistModel;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
+import com.doan.music.utils.General;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
 
@@ -32,18 +38,24 @@ public class DetailArtistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_album);
 
         ImageView ivCover = findViewById(R.id.ivCover);
-        TextView tvName = findViewById(R.id.tvName);
+        CollapsingToolbarLayout collapsed = findViewById(R.id.collapsed);
         ListView listView = findViewById(R.id.listView);
 
         Intent intent = getIntent();
-        int position = intent.getIntExtra("pos", 0);
-        long artistId = intent.getLongExtra("artistId", 0);
+        int position = intent.getIntExtra("pos", -1);
+        long artistId = intent.getLongExtra("artistId", -1);
+
+        if (position < 0 || artistId < 0)
+            finish();
 
         ModelManager modelManager = MainActivity.getModelManager();
         ArtistModel artistModel = modelManager.getArtistModels().get(position);
         ArrayList<MusicModel> musicModels = modelManager.getMusicFromArtist(artistId);
 
-        tvName.setText(artistModel.getArtistName());
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        collapsed.setTitle(artistModel.getArtistName());
         Glide.with(this).load(artistModel.getAlbumArtUri()).into(ivCover);
 
         DetailArtistAdapter adapter = new DetailArtistAdapter(
@@ -56,6 +68,18 @@ public class DetailArtistActivity extends AppCompatActivity {
             modelManager.onChanged(musicModels.get(i));
             adapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.options_menu, menu);
+        return true;
     }
 }
 
@@ -79,7 +103,7 @@ class DetailArtistAdapter extends ArrayAdapter<MusicModel> {
 
         songTitle.setText(model.getTitle());
         songArtist.setText(model.getArtist());
-        songDuration.setText(model.getDuration());
+        songDuration.setText(General.convertTimeToString(model.getDuration()));
 
         if (model.isPlaying()) {
             currentItemView.setBackgroundResource(R.drawable.round_10_color);

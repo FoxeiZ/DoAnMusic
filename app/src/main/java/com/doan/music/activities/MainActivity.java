@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout mainPlayerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private ViewPager2 vpMainContent;
+    private DrawerLayout drawerLayout;
 
     private ModelManager modelManager;
     public static WeakReference<ModelManager> managerWeakReference;
@@ -68,13 +69,7 @@ public class MainActivity extends AppCompatActivity {
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        int itemId = item.getItemId();
-        if (itemId == R.id.nav_music) {
-            vpMainContent.setCurrentItem(0);
-        } else if (itemId == R.id.nav_settings) {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(i);
-        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -109,13 +104,29 @@ public class MainActivity extends AppCompatActivity {
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setDisplayShowTitleEnabled(false);
         //             | init drawer nav
-        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         //             | init navView click event
         NavigationView navigationView = findViewById(R.id.navigationView);
-        navigationView.setNavigationItemSelectedListener(this::onOptionsItemSelected);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            boolean result = true;
+
+            if (itemId == R.id.nav_music) {
+                vpMainContent.setCurrentItem(0);
+            } else if (itemId == R.id.nav_settings) {
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
+                drawerLayout.close();
+            } else {
+                result = false;
+            }
+
+            drawerLayout.close();
+            return result;
+        });
         // drawer done |
 
         slidingUpPanel.setDragView(R.id.miniControl);

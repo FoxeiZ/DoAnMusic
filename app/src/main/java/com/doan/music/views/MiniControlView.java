@@ -24,6 +24,12 @@ public class MiniControlView {
         mini_c_songTitle = rootLayout.findViewById(R.id.mini_c_songTitle);
         ImageView mini_c_nextBtn = rootLayout.findViewById(R.id.mini_c_nextBtn);
 
+        int last_index = modelManager.getCurrentSongIndex();
+        if (last_index >= 0) {
+            mini_c_songTitle.setText(modelManager.getCurrentSong().getTitle());
+            mini_c_songTitle.setSelected(true);
+        }
+
         modelManager.addOnPauseButtonListener(new ModelManager.PauseButtonListener() {
             @Override
             public void onPause() {

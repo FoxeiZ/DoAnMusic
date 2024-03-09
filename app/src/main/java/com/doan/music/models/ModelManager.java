@@ -3,11 +3,13 @@ package com.doan.music.models;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.MainPlayer;
@@ -22,6 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ModelManager implements MainPlayerView.SongChangeListener {
+    private static final String PREF_LAST_PLAYED_INDEX = "LAST_PLAYED_INDEX";
     private final ArrayList<MusicModel> musicModels = new ArrayList<>();
     private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
     private final ArrayList<ArtistModel> artistModels = new ArrayList<>();
@@ -35,8 +38,6 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
     private final MainPlayer mainPlayer;
 
     private final ArrayList<PauseButtonListener> pauseButtonListeners = new ArrayList<>();
-    private final ArrayList<NextButtonListener> nextButtonListeners = new ArrayList<>();
-    private final ArrayList<PrevButtonListener> prevButtonListeners = new ArrayList<>();
     private CurrentTimeUpdateListener currentTimeUpdateListener;
 
     private MusicModel currentSong;
@@ -47,7 +48,14 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
 
         loadData();
         if (musicModels.size() > 1) {
-            currentSong = musicModels.get(0);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            int last_index = prefs.getInt(PREF_LAST_PLAYED_INDEX, 0);
+            if (last_index > musicModels.size()) {
+                last_index = 0;
+            }
+
+            currentSong = musicModels.get(last_index);
+            currentSong.setPlaying(true);
         }
 
         mainPlayer = new MainPlayer(this);
@@ -125,16 +133,12 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         pauseButtonListeners.add(pauseButtonListener);
     }
 
-    public void addOnNextButtonListener(NextButtonListener nextButtonListener) {
-        nextButtonListeners.add(nextButtonListener);
-    }
-
-    public void addOnPrevButtonListener(PrevButtonListener prevButtonListener) {
-        prevButtonListeners.add(prevButtonListener);
-    }
-
     public void setOnCurrentTimeUpdateListener(CurrentTimeUpdateListener currentTimeUpdateListener) {
         this.currentTimeUpdateListener = currentTimeUpdateListener;
+    }
+
+    public MusicModel getCurrentSong() {
+        return currentSong;
     }
 
     public int getCurrentSongIndex() {
@@ -195,6 +199,11 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
             mainPlayer.pause();
         }
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(PREF_LAST_PLAYED_INDEX, position);
+        editor.apply();
+
         // change prop for old song
         int oldPosition = musicModels.indexOf(currentSong);
         if (oldPosition == position) {
@@ -246,18 +255,10 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
     }
 
     public void onNext(boolean force) {
-        for (NextButtonListener listener :
-                nextButtonListeners) {
-            listener.onClick();
-        }
         mainPlayer.next(force);
     }
 
     public void onPrev(boolean force) {
-        for (PrevButtonListener listener :
-                prevButtonListeners) {
-            listener.onClick();
-        }
         mainPlayer.prev(force);
     }
 
@@ -278,14 +279,6 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         void onPlay();
 
         void onPause();
-    }
-
-    public interface NextButtonListener {
-        void onClick();
-    }
-
-    public interface PrevButtonListener {
-        void onClick();
     }
 
     public interface CurrentTimeUpdateListener {
