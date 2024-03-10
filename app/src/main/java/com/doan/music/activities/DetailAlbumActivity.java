@@ -56,7 +56,7 @@ public class DetailAlbumActivity extends AppCompatActivity {
         ArrayList<MusicModel> musicModels = modelManager.getMusicFromAlbum(albumId);
 
         collapsed.setTitle(albumModel.getAlbumName());
-        Glide.with(this).load(albumModel.getAlbumArtUri()).into(ivAlbumCover);
+        Glide.with(this).load(albumModel.getAlbumArtUri()).error(R.drawable.audiotrack_icon).into(ivAlbumCover);
 
         DetailAlbumAdapter adapter = new DetailAlbumAdapter(
                 this,

@@ -56,7 +56,7 @@ public class DetailArtistActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         collapsed.setTitle(artistModel.getArtistName());
-        Glide.with(this).load(artistModel.getAlbumArtUri()).into(ivCover);
+        Glide.with(this).load(artistModel.getAlbumArtUri()).error(R.drawable.audiotrack_icon).into(ivCover);
 
         DetailArtistAdapter adapter = new DetailArtistAdapter(
                 this,
