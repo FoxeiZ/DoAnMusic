@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFFFF</color>
+    <color name="french_gray">#A9ACB2</color>
+    <color name="rich_black">#0B1119</color>
+    <color name="charcoal">#213847</color>
+    <color name="verdigris">#3DA0A0</color>
+    <color name="mint_green">#CFF9FA</color>
+    <color name="egg_blue">#48D4CE</color>
 </resources>

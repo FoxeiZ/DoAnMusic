@@ -1,21 +1,29 @@
 package com.doan.music.activities;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_AUDIO;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,19 +49,21 @@ import java.lang.ref.WeakReference;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_CODE = 200;
-
+    private static final int REQUEST_PERMISSION_CODE = 1000;
+    public static WeakReference<ModelManager> managerWeakReference;
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private ViewPager2 vpMainContent;
     private DrawerLayout drawerLayout;
-
     private ModelManager modelManager;
-    public static WeakReference<ModelManager> managerWeakReference;
     private MainPlayerView mainPlayerView;
     private MiniControlView miniControlView;
+
+    public static ModelManager getModelManager() {
+        return managerWeakReference.get();
+    }
 
     public MainPlayerView getMainPlayerView() {
         return mainPlayerView;
@@ -80,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +121,15 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
         //             | init navView click event
         NavigationView navigationView = findViewById(R.id.navigationView);
+
+        if (sharedPref.getBoolean("IsLogin", false)) {
+            navigationView.getMenu().setGroupVisible(R.id.id2, false);
+            navigationView.getMenu().setGroupVisible(R.id.id3, true);
+        } else {
+            navigationView.getMenu().setGroupVisible(R.id.id2, true);
+            navigationView.getMenu().setGroupVisible(R.id.id3, false);
+        }
+
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
             boolean result = true;
@@ -120,12 +140,56 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 drawerLayout.close();
+            } else if (itemId == R.id.nav_login) {
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(i);
+                drawerLayout.close();
+            } else if (itemId == R.id.nav_signup) {
+                Intent i = new Intent(MainActivity.this, SignupActivity.class);
+                startActivity(i);
+                drawerLayout.close();
+            } else if (itemId == R.id.nav_logout) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean("IsLogin", false);
+                editor.putString("Username", "");
+                editor.putString("Password", "");
+                editor.apply();
+
+                Intent i = new Intent(MainActivity.this, SplashActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
+                drawerLayout.close();
             } else {
                 result = false;
             }
 
             drawerLayout.close();
             return result;
+        });
+        //             | banner layout
+        RelativeLayout headerLayout = (RelativeLayout) navigationView.getHeaderView(0);
+        ImageView header_banner = headerLayout.findViewById(R.id.header_banner);
+
+        String bannerUri = sharedPref.getString("BANNER_URI", "");
+        if (!bannerUri.isEmpty()) {
+            header_banner.setImageURI(Uri.parse(bannerUri));
+        }
+
+        ActivityResultLauncher<Intent> startActivityForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == AppCompatActivity.RESULT_OK) {
+                Intent intent = result.getData();
+                if (intent == null) return;
+
+                Uri imageUri = intent.getData();
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("BANNER_URI", imageUri.toString());
+                editor.apply();
+                header_banner.setImageURI(imageUri);
+            }
+        });
+        headerLayout.setOnClickListener(view -> {
+            Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult.launch(i);
         });
         // drawer done |
 
@@ -158,11 +222,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // permissions check, init music db
-        if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (
+                ContextCompat.checkSelfPermission(this, READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(this, READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+        ) {
             modelManager = new ModelManager(this);
             managerWeakReference = new WeakReference<>(modelManager);
         } else {
-            requestPermissions(new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            requestPermissions(new String[]{READ_MEDIA_IMAGES, READ_MEDIA_AUDIO}, REQUEST_PERMISSION_CODE);
         }
 
         // init tab
@@ -188,10 +255,6 @@ public class MainActivity extends AppCompatActivity {
         mainPlayerView = new MainPlayerView(this, mainPlayerLayout, modelManager);
         miniControlView = new MiniControlView(this, miniControlLayout, modelManager);
         // Done layout init
-    }
-
-    public static ModelManager getModelManager() {
-        return managerWeakReference.get();
     }
 
     @Override

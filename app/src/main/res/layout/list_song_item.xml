@@ -46,12 +46,11 @@
                     android:id="@+id/songArtist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
-                    android:text="@string/default_artist"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:textColor="#FFF"/>
-
+                    android:layout_toStartOf="@+id/songDuration"
+                    android:text="@string/default_artist"
+                    android:textColor="#FFF" />
 
                 <TextView
                     android:id="@+id/songDuration"
@@ -60,6 +59,7 @@
                     android:layout_marginEnd="12dp"
                     android:textColor="#FFF"
                     android:text="@string/default_time"
+                    android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:textSize="12sp" />
 

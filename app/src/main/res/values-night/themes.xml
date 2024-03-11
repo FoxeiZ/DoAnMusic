@@ -1,4 +1,8 @@
 <resources>
     <!-- Base application theme. -->
-    <!-- Base application theme. -->
+    <style name="Theme.BaseTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/rich_black</item>
+        <item name="colorSecondary">@color/mint_green</item>
+        <item name="colorAccent">@color/egg_blue</item>
+    </style>
 </resources>

@@ -1,18 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header_layout"
     android:layout_width="match_parent"
-    android:layout_height="192dp"
-    android:background="?attr/colorPrimary"
-    android:padding="16dp"
+    android:layout_height="@android:dimen/thumbnail_width"
+    android:background="?colorPrimary"
     android:orientation="vertical"
     android:gravity="bottom"
     tools:ignore="HardcodedText">
 
-    <TextView
+    <ImageView
+        android:id="@+id/header_banner"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="My header title"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:padding="16sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-</LinearLayout>
+</RelativeLayout>

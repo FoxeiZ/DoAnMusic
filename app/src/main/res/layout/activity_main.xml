@@ -47,6 +47,8 @@
                     android:id="@+id/tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    app:tabSelectedTextColor="?colorSecondary"
+                    app:tabIndicatorColor="?colorSecondary"
                     app:tabIndicatorFullWidth="true"
                     app:tabMode="scrollable"
                     app:tabPaddingEnd="24dp"
@@ -98,8 +100,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:menu="@menu/app_drawer"
-        app:headerLayout="@layout/nav_header">
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/app_drawer">
 
     </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

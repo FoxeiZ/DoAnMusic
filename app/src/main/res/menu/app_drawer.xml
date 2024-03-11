@@ -10,19 +10,39 @@
             android:title="Music" />
 
         <item
+            android:id="@+id/nav_favorite"
             android:icon="@drawable/favorite_icon"
             android:title="Favourite" />
     </group>
 
     <group android:id="@+id/id2">
         <item
+            android:id="@+id/nav_login"
+            android:icon="@drawable/login_icon"
+            android:title="Login" />
+
+        <item
+            android:id="@+id/nav_signup"
+            android:icon="@drawable/add_icon"
+            android:title="Signup" />
+    </group>
+
+    <group android:id="@+id/id3">
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/logout_icon"
+            android:title="Logout" />
+    </group>
+
+    <group android:id="@+id/id4">
+        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings_icon"
             android:title="Settings" />
 
         <item
+            android:id="@+id/nav_about"
             android:icon="@drawable/about_icon"
             android:title="About" />
     </group>
-
 </menu>
