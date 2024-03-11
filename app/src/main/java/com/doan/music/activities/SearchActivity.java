@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity {
 
-    private ArrayList<MusicModel> searchResults = new ArrayList<>();
+    private final ArrayList<MusicModel> searchResults = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
