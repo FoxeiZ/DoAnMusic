@@ -61,15 +61,14 @@ public class SplashActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         String passwordFromDB = snapshot.child(username).child("password").getValue(String.class);
+                        Intent i;
                         if (passwordFromDB != null && passwordFromDB.equals(password)) {
-                            Intent i = new Intent(SplashActivity.this, MainActivity.class);
-                            startActivity(i);
-                            finish();
+                            i = new Intent(SplashActivity.this, MainActivity.class);
                         } else {
-                            Intent i = new Intent(SplashActivity.this, LoginActivity.class);
-                            startActivity(i);
-                            finish();
+                            i = new Intent(SplashActivity.this, LoginActivity.class);
                         }
+                        startActivity(i);
+                        finish();
                     }
                 }
 
