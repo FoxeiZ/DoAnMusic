@@ -5,6 +5,7 @@
     tools:ignore="HardcodedText">
 
     <item
+        android:id="@+id/toolbar_search"
         android:title="Search"
         android:icon="@drawable/search_icon"
         app:showAsAction="ifRoom" />

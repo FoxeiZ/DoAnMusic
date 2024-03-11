@@ -254,6 +254,15 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         }
     }
 
+    public ArrayList<MusicModel> searchFor(String query) {
+        ArrayList<MusicModel> searchResult = new ArrayList<>();
+        musicModels.forEach(model -> {
+            if (model.isContain(query))
+                searchResult.add(model);
+        });
+        return searchResult;
+    }
+
     public void onNext(boolean force) {
         mainPlayer.next(force);
     }

@@ -39,6 +39,10 @@ public class AlbumModel implements Parcelable {
         }
     };
 
+    public boolean isContain(String query) {
+        return albumName.contains(query);
+    }
+
     @Override
     public int describeContents() {
         return 0;

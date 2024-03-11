@@ -80,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        int itemId = item.getItemId();
+        if (itemId == R.id.toolbar_search) {
+            Intent i = new Intent(MainActivity.this, SearchActivity.class);
+            startActivity(i);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
