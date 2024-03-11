@@ -50,7 +50,7 @@ import java.lang.ref.WeakReference;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_PERMISSION_CODE = 1000;
-    public static WeakReference<ModelManager> managerWeakReference;
+    public static WeakReference<ModelManager> modelManagerWeakReference;
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private MiniControlView miniControlView;
 
     public static ModelManager getModelManager() {
-        return managerWeakReference.get();
+        return modelManagerWeakReference.get();
     }
 
     public MainPlayerView getMainPlayerView() {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                         && ContextCompat.checkSelfPermission(this, READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
         ) {
             modelManager = new ModelManager(this);
-            managerWeakReference = new WeakReference<>(modelManager);
+            modelManagerWeakReference = new WeakReference<>(modelManager);
         } else {
             requestPermissions(new String[]{READ_MEDIA_IMAGES, READ_MEDIA_AUDIO}, REQUEST_PERMISSION_CODE);
         }
@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             modelManager = new ModelManager(this);
-            managerWeakReference = new WeakReference<>(modelManager);
+            modelManagerWeakReference = new WeakReference<>(modelManager);
         } else {
             Toast.makeText(this, "Permission Denied. Exiting...", Toast.LENGTH_LONG).show();
             finish();
@@ -291,6 +291,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         modelManager.destroy();
-        managerWeakReference = null;
+        modelManagerWeakReference = null;
     }
 }
