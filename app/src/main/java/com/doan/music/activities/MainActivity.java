@@ -3,6 +3,7 @@ package com.doan.music.activities;
 import static android.Manifest.permission.READ_MEDIA_AUDIO;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,6 +180,13 @@ public class MainActivity extends AppCompatActivity {
         //             | banner layout
         RelativeLayout headerLayout = (RelativeLayout) navigationView.getHeaderView(0);
         ImageView header_banner = headerLayout.findViewById(R.id.header_banner);
+        TextView header_title = headerLayout.findViewById(R.id.header_title);
+
+        boolean isLogin = sharedPref.getBoolean("IsLogin", false);
+        if (isLogin) {
+            String userName = sharedPref.getString("Username", "");
+            header_title.setText("Hello " + userName + "! Have a good day.");
+        }
 
         String bannerUri = sharedPref.getString("BANNER_URI", "");
         if (!bannerUri.isEmpty()) {
