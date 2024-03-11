@@ -54,6 +54,7 @@ public class DetailArtistActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(view -> finish());
 
         collapsed.setTitle(artistModel.getArtistName());
         Glide.with(this).load(artistModel.getAlbumArtUri()).error(R.drawable.audiotrack_icon).into(ivCover);

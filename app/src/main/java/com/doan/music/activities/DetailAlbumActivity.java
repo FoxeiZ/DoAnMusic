@@ -43,6 +43,7 @@ public class DetailAlbumActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(view -> finish());
 
         Intent intent = getIntent();
         int position = intent.getIntExtra("pos", -1);
