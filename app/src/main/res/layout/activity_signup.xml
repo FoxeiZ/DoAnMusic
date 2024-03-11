@@ -7,7 +7,8 @@
     android:background="?colorPrimary"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".activities.SignupActivity">
+    tools:context=".activities.SignupActivity"
+    tools:ignore="HardcodedText, Autofill">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -43,9 +44,11 @@
                 android:drawableStart="@drawable/person_icon"
                 android:drawablePadding="8dp"
                 android:hint="Username"
-                android:padding="8dp" />
+                android:padding="8dp"
+                android:inputType="text" />
 
             <EditText
+                android:inputType="textEmailAddress"
                 android:id="@+id/signup_email"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
