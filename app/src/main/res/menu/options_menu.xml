@@ -15,5 +15,7 @@
         app:showAsAction="ifRoom" />
 
     <item android:title="History" />
-    <item android:title="About" />
+    <item
+        android:title="About"
+        android:id="@+id/toolbar_about" />
 </menu>

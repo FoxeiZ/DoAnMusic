@@ -87,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(MainActivity.this, SearchActivity.class);
             startActivity(i);
             return true;
+        } else if (itemId == R.id.toolbar_about) {
+            Intent i = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(i);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -106,14 +110,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         slidingUpPanel = findViewById(R.id.slidingUpPanel);
         vpMainContent = findViewById(R.id.content);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         mainPlayerLayout = findViewById(R.id.mainPlayer);
         miniControlLayout = findViewById(R.id.miniControl);
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Log.d("SharedPreferences", "notifications: " + sharedPref.getBoolean("notifications", false));
 
         // init drawer |
         //             | init appbar
@@ -170,6 +173,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
                 drawerLayout.close();
                 finish();
+            } else if (itemId == R.id.nav_about) {
+                Intent i = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(i);
             } else {
                 result = false;
             }
@@ -183,7 +189,10 @@ public class MainActivity extends AppCompatActivity {
         TextView header_title = headerLayout.findViewById(R.id.header_title);
 
         boolean isLogin = sharedPref.getBoolean("IsLogin", false);
-        if (isLogin) {
+        String customHeaderTitle = sharedPref.getString("header_title", "");
+        if (!customHeaderTitle.isEmpty()) {
+            header_title.setText(customHeaderTitle);
+        } else if (isLogin) {
             String userName = sharedPref.getString("Username", "");
             header_title.setText("Hello " + userName + "! Have a good day.");
         }

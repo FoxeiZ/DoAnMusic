@@ -5,10 +5,14 @@
         app:key="notifications"
         app:title="Enable message notifications" />
 
+    <EditTextPreference
+        app:key="header_title"
+        app:title="Custom header title"
+        app:summary="Restart to take effect" />
+
     <Preference
         app:key="feedback"
         app:title="Send feedback"
         app:summary="Report technical issues or suggest new features" />
-
 
 </androidx.preference.PreferenceScreen>
