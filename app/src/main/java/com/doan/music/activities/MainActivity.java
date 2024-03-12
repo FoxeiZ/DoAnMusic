@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         TextView header_title = headerLayout.findViewById(R.id.header_title);
 
         boolean isLogin = sharedPref.getBoolean("IsLogin", false);
-        String customHeaderTitle = sharedPref.getString("header_title", "");
+        String customHeaderTitle = sharedPref.getString("HeaderTitle", "");
         if (!customHeaderTitle.isEmpty()) {
             header_title.setText(customHeaderTitle);
         } else if (isLogin) {
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             header_title.setText("Hello " + userName + "! Have a good day.");
         }
 
-        String bannerUri = sharedPref.getString("BANNER_URI", "");
+        String bannerUri = sharedPref.getString("BannerUri", "");
         if (!bannerUri.isEmpty()) {
             header_banner.setImageURI(Uri.parse(bannerUri));
         }
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri imageUri = intent.getData();
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("BANNER_URI", imageUri.toString());
+                editor.putString("BannerUri", imageUri.toString());
                 editor.apply();
                 header_banner.setImageURI(imageUri);
             }

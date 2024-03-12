@@ -24,7 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ModelManager implements MainPlayerView.SongChangeListener {
-    private static final String PREF_LAST_PLAYED_INDEX = "LAST_PLAYED_INDEX";
+    private static final String PREF_LAST_PLAYED_INDEX = "LastPlayedIndex";
     private final ArrayList<MusicModel> musicModels = new ArrayList<>();
     private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
     private final ArrayList<ArtistModel> artistModels = new ArrayList<>();
