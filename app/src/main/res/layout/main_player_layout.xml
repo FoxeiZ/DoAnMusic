@@ -70,6 +70,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/metadata"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cardViewHolder"
@@ -102,6 +103,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_below="@id/metadata"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
