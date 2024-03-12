@@ -218,7 +218,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         currentSong.setPlaying(true);
         // notify to RecyclerView
         recyclerViews.forEach((s, recyclerView) -> {
-            RecyclerView.Adapter adapter = Objects.requireNonNull(recyclerView.getAdapter());
+            @SuppressWarnings("rawtypes") RecyclerView.Adapter adapter = Objects.requireNonNull(recyclerView.getAdapter());
             adapter.notifyItemChanged(position);
             adapter.notifyItemChanged(oldPosition);
         });

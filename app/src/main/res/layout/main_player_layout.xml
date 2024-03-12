@@ -188,7 +188,7 @@
                     android:src="@drawable/play_icon"
                     android:layout_gravity="center"
                     android:contentDescription="@string/contentDescription"
-                    app:tint="?colorAccent"></ImageView>
+                    app:tint="?colorAccent" />
             </androidx.cardview.widget.CardView>
 
             <ImageView
