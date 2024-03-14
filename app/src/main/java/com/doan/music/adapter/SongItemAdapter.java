@@ -2,6 +2,8 @@ package com.doan.music.adapter;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +20,21 @@ import com.doan.music.utils.General;
 
 public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder> {
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         public final RelativeLayout adapterRoot;
         public final TextView songTitle;
         public final TextView songArtist;
         public final TextView songDuration;
+
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.add(0, 0, 0, "Delete").setOnMenuItemClickListener(menuItem -> {
+                Log.d("", "onCreateContextMenu: click on " + getLayoutPosition());
+                return true;
+            });
+            contextMenu.add(0, 1, 0, "Edit");
+            contextMenu.add(0, 2, 0, "Share");
+        }
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -31,6 +43,8 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
             songTitle = itemView.findViewById(R.id.songTitle);
             songArtist = itemView.findViewById(R.id.songArtist);
             songDuration = itemView.findViewById(R.id.songDuration);
+
+            adapterRoot.setOnCreateContextMenuListener(this);
         }
 
         public void setPlaying(boolean playing) {

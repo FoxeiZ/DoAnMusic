@@ -87,6 +87,13 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/without_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?colorSecondary"
+                android:text="Continue without login" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

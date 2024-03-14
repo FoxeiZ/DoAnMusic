@@ -1,5 +1,8 @@
 package com.doan.music.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -13,5 +16,10 @@ public class General {
 
     public static String convertTimeToString(String longStringTime) {
         return convertTimeToString(Integer.parseInt(longStringTime));
+    }
+
+    public static boolean isInternetConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetwork() != null && cm.getNetworkCapabilities(cm.getActiveNetwork()) != null;
     }
 }

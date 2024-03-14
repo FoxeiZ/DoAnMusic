@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/header_layout"
     android:layout_width="match_parent"
-    android:layout_height="@android:dimen/thumbnail_width"
+    android:layout_height="@android:dimen/thumbnail_height"
     android:background="?colorPrimary"
     android:orientation="vertical"
     android:gravity="bottom"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="HardcodedText, ContentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
             android:id="@+id/view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/shadow_gradient_both"
+            android:background="@drawable/shadow_gradient_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
