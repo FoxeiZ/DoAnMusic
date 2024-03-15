@@ -1,6 +1,10 @@
 package com.doan.music.models;
 
+import static com.doan.music.activities.MainActivity.CHANNEL_ID;
+
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,10 +13,14 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.MainPlayer;
+import com.doan.music.MusicService;
+import com.doan.music.R;
 import com.doan.music.activities.MainActivity;
 import com.doan.music.views.MainPlayerView;
 
@@ -24,7 +32,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ModelManager implements MainPlayerView.SongChangeListener {
+    public static final int NOTIFICATION_ID = 101;
+
     private static final String PREF_LAST_PLAYED_INDEX = "LastPlayedIndex";
+
     private final ArrayList<MusicModel> musicModels = new ArrayList<>();
     private final ArrayList<AlbumModel> albumModels = new ArrayList<>();
     private final ArrayList<ArtistModel> artistModels = new ArrayList<>();
@@ -65,8 +76,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
     private void albumBuilder(Cursor cursor) {
         long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
         String albumName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
-        if (albumModels.stream().anyMatch(albumModel -> albumModel.getAlbumId() == albumId))
-            return;
+        if (albumModels.stream().anyMatch(albumModel -> albumModel.getAlbumId() == albumId)) return;
         albumMap.put(albumId, new ArrayList<>());
         AlbumModel albumModel = new AlbumModel(albumId, albumName);
         albumModels.add(albumModel);
@@ -175,12 +185,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         playerTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                ((Activity) context)
-                        .runOnUiThread(() -> currentTimeUpdateListener
-                                .onUpdate(
-                                        mainPlayer.getCurrentTime(),
-                                        mainPlayer.getCurrentPercent()
-                                ));
+                ((Activity) context).runOnUiThread(() -> currentTimeUpdateListener.onUpdate(mainPlayer.getCurrentTime(), mainPlayer.getCurrentPercent()));
             }
         }, 1000, 1000);
     }
@@ -229,6 +234,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
 
         mainPlayer.play(currentSong);
         startNewTimer();
+        sendNotification(true);
     }
 
     @Override
@@ -245,6 +251,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
             mainPlayer.play();
         }
 
+        sendNotification(null);
         for (PauseButtonListener listener : pauseButtonListeners) {
             if (isPlaying()) {
                 listener.onPause();
@@ -257,8 +264,7 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
     public ArrayList<MusicModel> searchFor(String query) {
         ArrayList<MusicModel> searchResult = new ArrayList<>();
         musicModels.forEach(model -> {
-            if (model.isContain(query))
-                searchResult.add(model);
+            if (model.isContain(query)) searchResult.add(model);
         });
         return searchResult;
     }
@@ -277,6 +283,35 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
 
     public boolean isPlaying() {
         return mainPlayer.isPlaying();
+    }
+
+    private Notification createNotification(boolean isPlaying) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), CHANNEL_ID)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setSmallIcon(R.drawable.audiotrack_icon)
+                .setContentTitle(currentSong.getTitle())
+                .setContentText(currentSong.getArtist())
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(1)
+                        .setMediaSession(mainPlayer.getSessionToken())
+                );
+
+        builder.addAction(R.drawable.previous_song_button, "Previous", MusicService.pendingIntentPrev(getContext()));
+
+        if (isPlaying) {
+            builder.addAction(R.drawable.pause_icon, "Pause", MusicService.pendingIntentPlay(getContext()));
+        } else {
+            builder.addAction(R.drawable.play_icon, "Play", MusicService.pendingIntentPause(getContext()));
+        }
+
+        builder.addAction(R.drawable.next_song_button, "Next", MusicService.pendingIntentNext(getContext()));
+        return builder.build();
+    }
+
+    private void sendNotification(@Nullable Boolean isPlaying) {
+        Notification notification = createNotification(isPlaying == null ? isPlaying() : isPlaying);
+        NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     public void destroy() {
