@@ -106,6 +106,8 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
         if (desc == null || desc.isEmpty()) {
             desc = "<no description>";
             holder.playlistDesc.setTextColor(Color.argb(50, 255, 255, 255));
+        } else {
+            holder.playlistDesc.setTextColor(Color.WHITE);
         }
         if (desc.length() > 50) {
             desc = desc.substring(0, 50) + "...";

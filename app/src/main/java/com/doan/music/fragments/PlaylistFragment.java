@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,10 +60,11 @@ public class PlaylistFragment extends BaseFragment {
                     .setTitle("Create new playlist")
                     .setPositiveButton("Create", (dialog, which) -> {
                         // Handle OK button click
-                        String playlistName = ((EditText) view1.findViewById(R.id.playlist_name)).getText().toString();
+                        EditText playlist_name = view1.findViewById(R.id.playlist_name);
+                        String playlistName = playlist_name.getText().toString();
 
                         if (playlistName.isEmpty()) {
-                            ((EditText) view1.findViewById(R.id.playlist_name)).setError("Playlist name can not be empty");
+                            Toast.makeText(requireContext(), "Playlist name can not be empty", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
