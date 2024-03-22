@@ -2,10 +2,14 @@ package com.doan.music.views;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -15,6 +19,8 @@ import androidx.cardview.widget.CardView;
 import com.bumptech.glide.Glide;
 import com.doan.music.MainPlayer;
 import com.doan.music.R;
+import com.doan.music.adapter.PlaylistAdapter;
+import com.doan.music.adapter.PlaylistListViewAdapter;
 import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
@@ -188,6 +194,20 @@ public class MainPlayerView {
 
         nextBtn.setOnClickListener(view -> modelManager.onNext(true));
         previousBtn.setOnClickListener(view -> modelManager.onPrev(true));
+
+        ImageView library_add = rootLayout.findViewById(R.id.library_add);
+        library_add.setOnClickListener(view -> {
+            View view1 = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_playlist, null);
+            ListView listView = view1.findViewById(R.id.listView);
+            PlaylistListViewAdapter adapter = new PlaylistListViewAdapter(
+                    context,
+                    R.layout.list_song_item,
+                    PlaylistAdapter.getPlaylistModels()
+            );
+            listView.setAdapter(adapter);
+
+            new AlertDialog.Builder(context).setView(view1).create().show();
+        });
     }
 
     public void resetTime() {

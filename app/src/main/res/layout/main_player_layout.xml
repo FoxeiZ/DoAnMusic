@@ -118,13 +118,27 @@
             android:gravity="center"
             tools:ignore="UselessParent">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp"
+                android:paddingBottom="20dp">
+
+                <ImageView
+                    android:id="@+id/library_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/library_add_icon" />
+            </LinearLayout>
+
             <SeekBar
                 android:id="@+id/customSeekBar"
                 android:progressDrawable="@drawable/seekbar_custom"
                 android:progress="0"
                 android:max="100"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"></SeekBar>
+                android:layout_height="wrap_content" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -139,7 +153,7 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:textColor="#FFF"
-                    android:text="@string/default_timestamp"></TextView>
+                    android:text="@string/default_timestamp" />
 
                 <TextView
                     android:id="@+id/endTime"
@@ -151,7 +165,7 @@
                     android:textStyle="bold"
                     android:textColor="#FFF"
                     android:text="@string/default_timestamp"
-                    tools:ignore="RelativeOverlap"></TextView>
+                    tools:ignore="RelativeOverlap" />
 
             </RelativeLayout>
 

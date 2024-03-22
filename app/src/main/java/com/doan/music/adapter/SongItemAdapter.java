@@ -1,6 +1,5 @@
 package com.doan.music.adapter;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -20,58 +19,14 @@ import com.doan.music.utils.General;
 
 public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder> {
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
-        public final RelativeLayout adapterRoot;
-        public final TextView songTitle;
-        public final TextView songArtist;
-        public final TextView songDuration;
-
-        @Override
-        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-            contextMenu.add(0, 0, 0, "Delete").setOnMenuItemClickListener(menuItem -> {
-                Log.d("", "onCreateContextMenu: click on " + getLayoutPosition());
-                return true;
-            });
-            contextMenu.add(0, 1, 0, "Edit");
-            contextMenu.add(0, 2, 0, "Share");
-        }
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            adapterRoot = itemView.findViewById(R.id.adapterRootLayout);
-            songTitle = itemView.findViewById(R.id.songTitle);
-            songArtist = itemView.findViewById(R.id.songArtist);
-            songDuration = itemView.findViewById(R.id.songDuration);
-
-            adapterRoot.setOnCreateContextMenuListener(this);
-        }
-
-        public void setPlaying(boolean playing) {
-            if (playing) {
-                adapterRoot.setBackgroundResource(R.drawable.round_10_color);
-                songTitle.setTextColor(Color.BLACK);
-                songArtist.setTextColor(Color.BLACK);
-                songDuration.setTextColor(Color.BLACK);
-            } else {
-                adapterRoot.setBackgroundResource(R.drawable.round_10);
-                songTitle.setTextColor(Color.WHITE);
-                songArtist.setTextColor(Color.WHITE);
-                songDuration.setTextColor(Color.WHITE);
-            }
-        }
-    }
-
-
     public SongItemAdapter(ModelManager modelManager) {
         super(modelManager);
     }
 
-    @SuppressLint("InflateParams")
     @NonNull
     @Override
     public SongItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_song_item, null));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_song_item, parent, false));
     }
 
     @Override
@@ -92,5 +47,47 @@ public class SongItemAdapter extends BaseItemAdapter<SongItemAdapter.ViewHolder>
     @Override
     public int getItemCount() {
         return modelManager.getMusicModels().size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+        public final RelativeLayout adapterRoot;
+        public final TextView songTitle;
+        public final TextView songArtist;
+        public final TextView songDuration;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            adapterRoot = itemView.findViewById(R.id.adapterRootLayout);
+            songTitle = itemView.findViewById(R.id.songTitle);
+            songArtist = itemView.findViewById(R.id.songArtist);
+            songDuration = itemView.findViewById(R.id.songDuration);
+
+            adapterRoot.setOnCreateContextMenuListener(this);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            contextMenu.add(0, 0, 0, "Delete").setOnMenuItemClickListener(menuItem -> {
+                Log.d("", "onCreateContextMenu: click on " + getLayoutPosition());
+                return true;
+            });
+            contextMenu.add(0, 1, 0, "Edit");
+            contextMenu.add(0, 2, 0, "Share");
+        }
+
+        public void setPlaying(boolean playing) {
+            if (playing) {
+                adapterRoot.setBackgroundResource(R.drawable.round_10_color);
+                songTitle.setTextColor(Color.BLACK);
+                songArtist.setTextColor(Color.BLACK);
+                songDuration.setTextColor(Color.BLACK);
+            } else {
+                adapterRoot.setBackgroundResource(R.drawable.round_10);
+                songTitle.setTextColor(Color.WHITE);
+                songArtist.setTextColor(Color.WHITE);
+                songDuration.setTextColor(Color.WHITE);
+            }
+        }
     }
 }

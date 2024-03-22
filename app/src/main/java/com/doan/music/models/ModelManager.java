@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -285,7 +286,25 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         return mainPlayer.isPlaying();
     }
 
+    private PlaybackStateCompat playbackStateCompatBuilder() {
+        PlaybackStateCompat.Builder playbackStateBuilder = new PlaybackStateCompat.Builder();
+
+        int state = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+        long position = mainPlayer.getCurrentTime();
+
+        long stateActions = PlaybackStateCompat.ACTION_PLAY
+                | PlaybackStateCompat.ACTION_PLAY_PAUSE
+                | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                | PlaybackStateCompat.ACTION_SEEK_TO;
+
+        playbackStateBuilder.setState(state, position, 1);
+        playbackStateBuilder.setActions(stateActions);
+        return playbackStateBuilder.build();
+    }
+
     private Notification createNotification(boolean isPlaying) {
+        mainPlayer.getMediaSession().setPlaybackState(playbackStateCompatBuilder());
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), CHANNEL_ID)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.audiotrack_icon)
