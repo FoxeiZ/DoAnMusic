@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -99,6 +100,7 @@ class DetailAlbumAdapter extends ArrayAdapter<MusicModel> {
         }
 
         MusicModel model = getItem(position);
+        RelativeLayout rootLayout = currentItemView.findViewById(R.id.adapterRootLayout);
         TextView songTitle = currentItemView.findViewById(R.id.songTitle);
         TextView songArtist = currentItemView.findViewById(R.id.songArtist);
         TextView songDuration = currentItemView.findViewById(R.id.songDuration);
@@ -108,12 +110,12 @@ class DetailAlbumAdapter extends ArrayAdapter<MusicModel> {
         songDuration.setText(General.convertTimeToString(model.getDuration()));
 
         if (model.isPlaying()) {
-            currentItemView.setBackgroundResource(R.drawable.round_10_color);
+            rootLayout.setBackgroundResource(R.drawable.round_10_color);
             songTitle.setTextColor(Color.BLACK);
             songArtist.setTextColor(Color.BLACK);
             songDuration.setTextColor(Color.BLACK);
         } else {
-            currentItemView.setBackgroundResource(R.drawable.round_10);
+            rootLayout.setBackgroundResource(R.drawable.round_10);
             songTitle.setTextColor(Color.WHITE);
             songArtist.setTextColor(Color.WHITE);
             songDuration.setTextColor(Color.WHITE);
