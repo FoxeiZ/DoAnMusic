@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.doan.music.R;
+import com.doan.music.utils.General;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,13 +48,23 @@ public class SplashActivity extends AppCompatActivity {
         });
     }
 
+
     private void checkLoginAndStart() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPref.getBoolean("IsLogin", false)) {
+            if (!General.isInternetConnected(this)) {
+                Toast.makeText(this, "No internet connection!", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(this, MainActivity.class);
+                startActivity(i);
+                finish();
+                return;
+            }
+
             String username = sharedPref.getString("Username", "");
             String password = sharedPref.getString("Password", "");
 
-            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+            DatabaseReference reference = firebaseDatabase.getReference("users");
             Query checkUserDatabase = reference.orderByChild("username").equalTo(username);
 
             checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -65,7 +76,9 @@ public class SplashActivity extends AppCompatActivity {
                         if (passwordFromDB != null && passwordFromDB.equals(password)) {
                             i = new Intent(SplashActivity.this, MainActivity.class);
                         } else {
+                            Toast.makeText(SplashActivity.this, "Your password has been changed. Please re-login!", Toast.LENGTH_LONG).show();
                             i = new Intent(SplashActivity.this, LoginActivity.class);
+                            i.putExtra("username", username);
                         }
                         startActivity(i);
                         finish();
@@ -74,10 +87,11 @@ public class SplashActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
+                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    finish();
                 }
             });
-
         } else {
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);

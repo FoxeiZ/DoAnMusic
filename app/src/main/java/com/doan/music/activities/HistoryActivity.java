@@ -1,13 +1,10 @@
 package com.doan.music.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,70 +20,97 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.doan.music.R;
-import com.doan.music.models.ArtistModel;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
 import com.doan.music.utils.General;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class DetailArtistActivity extends AppCompatActivity {
+public class HistoryActivity extends AppCompatActivity {
+
+    private final ArrayList<MusicModel> musicModels = new ArrayList<>();
+    public static WeakReference<HistoryActivity> historyActivityWeakReference;
+
+    private HistoryAdapter adapter;
+
+    public static HistoryActivity getInstance() {
+        if (historyActivityWeakReference == null || historyActivityWeakReference.get() == null)
+            return null;
+        return historyActivityWeakReference.get();
+    }
+
+    public void addHistory(MusicModel model) {
+        musicModels.add(model);
+        adapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_album);
 
-        ImageView ivCover = findViewById(R.id.ivCover);
+        ImageView ivAlbumCover = findViewById(R.id.ivCover);
         CollapsingToolbarLayout collapsed = findViewById(R.id.collapsed);
         ListView listView = findViewById(R.id.listView);
-
-        Intent intent = getIntent();
-        int position = intent.getIntExtra("pos", -1);
-        long artistId = intent.getLongExtra("artistId", -1);
-
-        if (position < 0 || artistId < 0)
-            finish();
-
-        ModelManager modelManager = MainActivity.getModelManager();
-        ArtistModel artistModel = modelManager.getArtistModels().get(position);
-        ArrayList<MusicModel> musicModels = modelManager.getMusicFromArtist(artistId);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(view -> finish());
 
-        collapsed.setTitle(artistModel.getArtistName());
-        Glide.with(this).load(artistModel.getAlbumArtUri()).error(R.drawable.audiotrack_icon).into(ivCover);
+        ModelManager modelManager = MainActivity.getModelManager();
+        collapsed.setTitle("History");
+        Glide.with(this).load(R.drawable.history_icon).into(ivAlbumCover);
 
-        DetailArtistAdapter adapter = new DetailArtistAdapter(
+        adapter = new HistoryAdapter(
                 this,
                 R.layout.list_song_item,
                 musicModels
         );
         listView.setAdapter(adapter);
+
+        General.getCurrentUserRef(this)
+                .child("history")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        snapshot.getChildren().forEach(child -> {
+                            Long musicId = child.getValue(Long.class);
+                            if (musicId == null)
+                                return;
+
+                            modelManager
+                                    .getMusicModels()
+                                    .stream()
+                                    .filter(model -> model.getSongId() == musicId)
+                                    .findFirst().ifPresent(musicModels::add);
+                        });
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.d("", "onCancelled: " + error.getMessage());
+                    }
+                });
+
         listView.setOnItemClickListener((adapterView, view, i, l) -> {
-            modelManager.onChanged(musicModels.get(i));
+            modelManager.onChanged(musicModels.get(musicModels.size() - 1 - i));
             adapter.notifyDataSetChanged();
         });
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.options_menu, menu);
-        return true;
+        historyActivityWeakReference = new WeakReference<>(this);
     }
 }
 
-class DetailArtistAdapter extends ArrayAdapter<MusicModel> {
-    public DetailArtistAdapter(@NonNull Context context, int resource, @NonNull ArrayList<MusicModel> musicModels) {
+
+class HistoryAdapter extends ArrayAdapter<MusicModel> {
+    public HistoryAdapter(@NonNull Context context, int resource, @NonNull ArrayList<MusicModel> musicModels) {
         super(context, resource, musicModels);
     }
 
@@ -98,7 +122,7 @@ class DetailArtistAdapter extends ArrayAdapter<MusicModel> {
             currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_song_item, parent, false);
         }
 
-        MusicModel model = getItem(position);
+        MusicModel model = getItem(getCount() - 1 - position);
         RelativeLayout rootLayout = currentItemView.findViewById(R.id.adapterRootLayout);
         TextView songTitle = currentItemView.findViewById(R.id.songTitle);
         TextView songArtist = currentItemView.findViewById(R.id.songArtist);

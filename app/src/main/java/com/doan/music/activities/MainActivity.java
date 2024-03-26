@@ -2,7 +2,12 @@ package com.doan.music.activities;
 
 import static android.Manifest.permission.READ_MEDIA_AUDIO;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static com.doan.music.models.ModelManager.NOTIFICATION_ID;
 
+import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,6 +23,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,6 +40,7 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.doan.music.R;
+import com.doan.music.adapter.PlaylistAdapter;
 import com.doan.music.adapter.ViewPagerAdapter;
 import com.doan.music.models.ModelManager;
 import com.doan.music.views.MainPlayerView;
@@ -50,7 +57,7 @@ import java.lang.ref.WeakReference;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_PERMISSION_CODE = 1000;
-    public static WeakReference<ModelManager> managerWeakReference;
+    public static WeakReference<ModelManager> modelManagerWeakReference;
     private SlidingUpPanelLayout slidingUpPanel;
     private LinearLayout miniControlLayout;
     private RelativeLayout mainPlayerLayout;
@@ -61,8 +68,20 @@ public class MainActivity extends AppCompatActivity {
     private MainPlayerView mainPlayerView;
     private MiniControlView miniControlView;
 
+    public static final String CHANNEL_ID = "CHANNEL_DO_AN";
+
+    private void createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID, "DO_AN", NotificationManager.IMPORTANCE_LOW
+        );
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
+        }
+    }
+
     public static ModelManager getModelManager() {
-        return managerWeakReference.get();
+        return modelManagerWeakReference.get();
     }
 
     public MainPlayerView getMainPlayerView() {
@@ -85,6 +104,14 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(MainActivity.this, SearchActivity.class);
             startActivity(i);
             return true;
+        } else if (itemId == R.id.toolbar_about) {
+            Intent i = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(i);
+            return true;
+        } else if (itemId == R.id.toolbar_history) {
+            Intent i = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivity(i);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -97,20 +124,21 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        createNotificationChannel();
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         slidingUpPanel = findViewById(R.id.slidingUpPanel);
         vpMainContent = findViewById(R.id.content);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         mainPlayerLayout = findViewById(R.id.mainPlayer);
         miniControlLayout = findViewById(R.id.miniControl);
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Log.d("SharedPreferences", "notifications: " + sharedPref.getBoolean("notifications", false));
 
         // init drawer |
         //             | init appbar
@@ -147,6 +175,19 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 drawerLayout.close();
+            } else if (itemId == R.id.nav_favorite) {
+                Intent i = new Intent(MainActivity.this, DetailPlaylistActivity.class);
+                i.putExtra("playlistName", PlaylistAdapter.getPlaylistModels().get(0).getTitle());
+                i.putExtra("musicIds", PlaylistAdapter.getPlaylistModels().get(0)
+                        .getItems()
+                        .stream()
+                        .mapToLong(Long::longValue)
+                        .toArray()
+                );
+                i.putExtra("index", 0);
+
+                startActivity(i);
+                drawerLayout.close();
             } else if (itemId == R.id.nav_login) {
                 Intent i = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(i);
@@ -167,6 +208,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
                 drawerLayout.close();
                 finish();
+            } else if (itemId == R.id.nav_about) {
+                Intent i = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(i);
             } else {
                 result = false;
             }
@@ -177,8 +221,18 @@ public class MainActivity extends AppCompatActivity {
         //             | banner layout
         RelativeLayout headerLayout = (RelativeLayout) navigationView.getHeaderView(0);
         ImageView header_banner = headerLayout.findViewById(R.id.header_banner);
+        TextView header_title = headerLayout.findViewById(R.id.header_title);
 
-        String bannerUri = sharedPref.getString("BANNER_URI", "");
+        boolean isLogin = sharedPref.getBoolean("IsLogin", false);
+        String customHeaderTitle = sharedPref.getString("HeaderTitle", "");
+        if (!customHeaderTitle.isEmpty()) {
+            header_title.setText(customHeaderTitle);
+        } else if (isLogin) {
+            String userName = sharedPref.getString("Username", "");
+            header_title.setText("Hello " + userName + "! Have a good day.");
+        }
+
+        String bannerUri = sharedPref.getString("BannerUri", "");
         if (!bannerUri.isEmpty()) {
             header_banner.setImageURI(Uri.parse(bannerUri));
         }
@@ -190,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri imageUri = intent.getData();
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("BANNER_URI", imageUri.toString());
+                editor.putString("BannerUri", imageUri.toString());
                 editor.apply();
                 header_banner.setImageURI(imageUri);
             }
@@ -235,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
                         && ContextCompat.checkSelfPermission(this, READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
         ) {
             modelManager = new ModelManager(this);
-            managerWeakReference = new WeakReference<>(modelManager);
+            modelManagerWeakReference = new WeakReference<>(modelManager);
         } else {
             requestPermissions(new String[]{READ_MEDIA_IMAGES, READ_MEDIA_AUDIO}, REQUEST_PERMISSION_CODE);
         }
@@ -243,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
         // init tab
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
         vpMainContent.setAdapter(viewPagerAdapter);
+        vpMainContent.setOffscreenPageLimit(2);
         new TabLayoutMediator(tabLayout, vpMainContent, (tab, position) -> {
             switch (position) {
                 case 0:
@@ -271,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             modelManager = new ModelManager(this);
-            managerWeakReference = new WeakReference<>(modelManager);
+            modelManagerWeakReference = new WeakReference<>(modelManager);
         } else {
             Toast.makeText(this, "Permission Denied. Exiting...", Toast.LENGTH_LONG).show();
             finish();
@@ -291,6 +346,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         modelManager.destroy();
-        managerWeakReference = null;
+
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+
+        modelManagerWeakReference = null;
     }
 }

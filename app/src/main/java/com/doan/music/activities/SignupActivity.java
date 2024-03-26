@@ -7,11 +7,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.doan.music.R;
+import com.doan.music.models.PlaylistModel;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 class SignUpModel {
     private String username;
@@ -56,9 +64,6 @@ class SignUpModel {
 public class SignupActivity extends AppCompatActivity {
 
     private EditText signup_username, signup_email, signup_password;
-    private FirebaseDatabase database;
-    private DatabaseReference reference;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +83,8 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         signup_button.setOnClickListener(v -> {
-            database = FirebaseDatabase.getInstance();
-            reference = database.getReference("users");
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference reference = database.getReference("users");
 
             String username = signup_username.getText().toString();
             String email = signup_email.getText().toString();
@@ -97,13 +102,32 @@ public class SignupActivity extends AppCompatActivity {
                 return;
             }
 
-            SignUpModel model = new SignUpModel(username, password, email);
-            reference.child(username).setValue(model);
+            Query checkUserDatabase = reference.orderByChild("username").equalTo(username);
+            checkUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
 
-            Toast.makeText(SignupActivity.this, "You have signup successfully", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-            intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        signup_username.setError("Username already existed");
+                        signup_username.requestFocus();
+                    } else {
+                        SignUpModel model = new SignUpModel(username, password, email);
+                        reference.child(username).setValue(model).addOnCompleteListener(runnable -> {
+                            reference.child(username).child("playlists").child("Favorite").setValue(new PlaylistModel("Favorite", "Your favorite song is in here!", new ArrayList<>()));
+                        });
+
+                        Toast.makeText(SignupActivity.this, "You have signup successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         });
 
         signup_redirect.setOnClickListener(v -> {

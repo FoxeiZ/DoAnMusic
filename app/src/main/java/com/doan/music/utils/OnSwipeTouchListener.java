@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
 
+@SuppressWarnings("SameReturnValue")
 public class OnSwipeTouchListener implements View.OnTouchListener {
 
     private View view;

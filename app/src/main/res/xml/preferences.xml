@@ -2,13 +2,17 @@
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
-        app:key="notifications"
+        app:key="Notifications"
         app:title="Enable message notifications" />
 
+    <EditTextPreference
+        app:key="HeaderTitle"
+        app:title="Custom header title"
+        app:summary="Restart to take effect" />
+
     <Preference
-        app:key="feedback"
+        app:key="Feedback"
         app:title="Send feedback"
         app:summary="Report technical issues or suggest new features" />
-
 
 </androidx.preference.PreferenceScreen>

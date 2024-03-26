@@ -1,6 +1,8 @@
 package com.doan.music;
 
 import android.media.MediaPlayer;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.doan.music.enums.PlaybackMode;
@@ -36,6 +38,7 @@ public class MainPlayer {
 
     private final ModelManager modelManager;
     private MediaPlayer mediaPlayer;
+    private MediaSessionCompat mediaSession;
 
     private MediaPreparedListener mediaPreparedListener;
     private MediaCompletionListener mediaCompletionListener;
@@ -57,9 +60,38 @@ public class MainPlayer {
         this.mediaCompletionListener = mediaCompletionListener;
     }
 
+
     public MainPlayer(ModelManager modelManager) {
         this.modelManager = modelManager;
         mediaPlayer = new MediaPlayer();
+        mediaSession = new MediaSessionCompat(modelManager.getContext(), "MusicPlayer");
+        mediaSession.setCallback(new MediaSessionCompat.Callback() {
+            @Override
+            public void onPlay() {
+                play();
+            }
+
+            @Override
+            public void onPause() {
+                pause();
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                prev(true);
+            }
+
+            @Override
+            public void onSkipToNext() {
+                next(true);
+            }
+
+            @Override
+            public void onSeekTo(long pos) {
+                Log.d("", "onSeekTo: " + pos);
+                mediaPlayer.seekTo((int) pos);
+            }
+        });
 
         // init event listener
         mediaPlayer.setOnPreparedListener(mp -> {
@@ -180,6 +212,14 @@ public class MainPlayer {
         return mediaPlayer.getDuration();
     }
 
+    public MediaSessionCompat getMediaSession() {
+        return mediaSession;
+    }
+
+    public MediaSessionCompat.Token getSessionToken() {
+        return mediaSession.getSessionToken();
+    }
+
     public void next() {
         next(false);
     }
@@ -192,7 +232,9 @@ public class MainPlayer {
             }
             mediaPlayer.reset();
             mediaPlayer.release();
+            mediaSession.release();
             mediaPlayer = null;
+            mediaSession = null;
         }
     }
 }

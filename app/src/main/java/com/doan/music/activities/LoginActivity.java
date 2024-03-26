@@ -34,6 +34,12 @@ public class LoginActivity extends AppCompatActivity {
         TextView login_redirect = findViewById(R.id.login_redirect);
         Button login_button = findViewById(R.id.login_button);
 
+        Intent i = getIntent();
+        String usernameExtra = i.getStringExtra("username");
+        if (usernameExtra != null && !usernameExtra.isEmpty()) {
+            login_username.setText(usernameExtra);
+        }
+
         sharedPref = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 
         login_button.setOnClickListener(v -> {
@@ -49,6 +55,13 @@ public class LoginActivity extends AppCompatActivity {
             if (!username.isEmpty()) {
                 intent.putExtra("username", username);
             }
+            startActivity(intent);
+        });
+
+        TextView without_login = findViewById(R.id.without_login);
+        without_login.setOnClickListener(view -> {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
     }

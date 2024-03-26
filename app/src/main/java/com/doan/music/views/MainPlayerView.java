@@ -2,22 +2,30 @@ package com.doan.music.views;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.doan.music.MainPlayer;
 import com.doan.music.R;
+import com.doan.music.adapter.PlaylistAdapter;
+import com.doan.music.adapter.PlaylistListViewAdapter;
 import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
+import com.doan.music.models.PlaylistModel;
 import com.doan.music.utils.CustomAnimationUtils;
 import com.doan.music.utils.General;
 import com.doan.music.utils.OnSwipeTouchListener;
@@ -26,6 +34,7 @@ import com.doan.music.utils.OnSwipeTouchListener;
 public class MainPlayerView {
 
     private final Context context;
+    private final ModelManager modelManager;
     private final TextView startTime, endTime, tvTitle, tvArtist;
     private final ImageView playPauseBtn, loopBtn, shuffleBtn, coverArt;
     private final SeekBar seekBar;
@@ -35,6 +44,7 @@ public class MainPlayerView {
     @SuppressLint("ClickableViewAccessibility")
     public MainPlayerView(Context context, RelativeLayout rootLayout, ModelManager modelManager) {
         this.context = context;
+        this.modelManager = modelManager;
         MainPlayer mainPlayer = modelManager.getMainPlayer();
 
         rootLayout.setAlpha(0);
@@ -188,6 +198,56 @@ public class MainPlayerView {
 
         nextBtn.setOnClickListener(view -> modelManager.onNext(true));
         previousBtn.setOnClickListener(view -> modelManager.onPrev(true));
+
+        ImageView library_add = rootLayout.findViewById(R.id.library_add);
+        library_add.setOnClickListener(view -> {
+            View view1 = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_playlist, null);
+            ListView listView = view1.findViewById(R.id.listView);
+            AlertDialog alertDialog = new AlertDialog.Builder(context).setView(view1).create();
+
+            PlaylistListViewAdapter adapter = new PlaylistListViewAdapter(
+                    context,
+                    R.layout.list_song_item,
+                    PlaylistAdapter.getPlaylistModels()
+            );
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener((adapterView, view2, i, l) -> {
+                PlaylistModel model = PlaylistAdapter.getPlaylistModels().get(i);
+                boolean result = addToPlaylist(model);
+                if (!result) {
+                    Toast.makeText(context, "Already in " + model.getTitle() + " playlist!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Added to " + model.getTitle() + " playlist!", Toast.LENGTH_SHORT).show();
+                }
+                alertDialog.dismiss();
+            });
+
+            alertDialog.show();
+        });
+
+        ImageView library_fav = rootLayout.findViewById(R.id.library_fav);
+        library_fav.setOnClickListener(view -> {
+            boolean result = addToPlaylist(PlaylistAdapter.getPlaylistModels().get(0));
+            if (!result) {
+                Toast.makeText(context, "Already in your favorite list", Toast.LENGTH_SHORT).show();
+            }
+            Toast.makeText(context, "Added to your favorite list!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    public boolean addToPlaylist(PlaylistModel playlistModel) {
+        MusicModel musicModel = modelManager.getCurrentSong();
+        if (playlistModel.isExist(musicModel.getSongId())) {
+            return false;
+        }
+        playlistModel.addItem(musicModel.getSongId());
+
+        General.getCurrentUserRef(context)
+                .child("playlists")
+                .child(playlistModel.getTitle())
+                .child("items")
+                .setValue(playlistModel.getItems());
+        return true;
     }
 
     public void resetTime() {
