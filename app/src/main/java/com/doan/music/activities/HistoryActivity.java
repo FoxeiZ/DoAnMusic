@@ -100,7 +100,7 @@ public class HistoryActivity extends AppCompatActivity {
                 });
 
         listView.setOnItemClickListener((adapterView, view, i, l) -> {
-            modelManager.onChanged(musicModels.get(i));
+            modelManager.onChanged(musicModels.get(musicModels.size() - 1 - i));
             adapter.notifyDataSetChanged();
         });
 
