@@ -40,6 +40,7 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.doan.music.R;
+import com.doan.music.adapter.PlaylistAdapter;
 import com.doan.music.adapter.ViewPagerAdapter;
 import com.doan.music.models.ModelManager;
 import com.doan.music.views.MainPlayerView;
@@ -170,6 +171,19 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 drawerLayout.close();
+            } else if (itemId == R.id.nav_favorite) {
+                Intent i = new Intent(MainActivity.this, PlaylistDetailActivity.class);
+                i.putExtra("playlistName", PlaylistAdapter.getPlaylistModels().get(0).getTitle());
+                i.putExtra("musicIds", PlaylistAdapter.getPlaylistModels().get(0)
+                        .getItems()
+                        .stream()
+                        .mapToLong(Long::longValue)
+                        .toArray()
+                );
+                i.putExtra("index", 0);
+
+                startActivity(i);
+                drawerLayout.close();
             } else if (itemId == R.id.nav_login) {
                 Intent i = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(i);
@@ -279,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
         // init tab
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
         vpMainContent.setAdapter(viewPagerAdapter);
+        vpMainContent.setOffscreenPageLimit(2);
         new TabLayoutMediator(tabLayout, vpMainContent, (tab, position) -> {
             switch (position) {
                 case 0:

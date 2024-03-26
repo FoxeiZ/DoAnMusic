@@ -19,9 +19,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
-
-        hashMap.put(0, new SongsFragment());
-        hashMap.put(1, new PlaylistFragment());
     }
 
     private BaseFragment internalCreateFragment(int position) {

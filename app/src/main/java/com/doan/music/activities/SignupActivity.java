@@ -112,16 +112,9 @@ public class SignupActivity extends AppCompatActivity {
                         signup_username.requestFocus();
                     } else {
                         SignUpModel model = new SignUpModel(username, password, email);
-                        reference.child(username).setValue(model);
-                        reference
-                                .child(username)
-                                .child("playlists")
-                                .child("Favorite")
-                                .setValue(new PlaylistModel(
-                                        "Favorite",
-                                        "Your favorite song is in here!",
-                                        new ArrayList<>()
-                                ));
+                        reference.child(username).setValue(model).addOnCompleteListener(runnable -> {
+                            reference.child(username).child("playlists").child("Favorite").setValue(new PlaylistModel("Favorite", "Your favorite song is in here!", new ArrayList<>()));
+                        });
 
                         Toast.makeText(SignupActivity.this, "You have signup successfully", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(SignupActivity.this, LoginActivity.class);

@@ -21,7 +21,7 @@ public class AlbumFragment extends BaseFragment {
 
 
     public AlbumFragment() {
-
+        setRetainInstance(true);
     }
 
     @Override
