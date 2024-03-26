@@ -118,19 +118,30 @@
             android:gravity="center"
             tools:ignore="UselessParent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="10dp"
+                android:paddingHorizontal="14dp"
                 android:paddingBottom="20dp">
 
                 <ImageView
                     android:id="@+id/library_add"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
                     android:src="@drawable/library_add_icon" />
-            </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/library_fav"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:src="@drawable/favorite_icon" />
+
+            </RelativeLayout>
 
             <SeekBar
                 android:id="@+id/customSeekBar"

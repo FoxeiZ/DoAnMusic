@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class PlaylistFragment extends BaseFragment {
@@ -74,7 +75,7 @@ public class PlaylistFragment extends BaseFragment {
                             @SuppressLint("NotifyDataSetChanged")
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                PlaylistModel playlistModel = new PlaylistModel(playlistName, playlistDescription);
+                                PlaylistModel playlistModel = new PlaylistModel(playlistName, playlistDescription, new ArrayList<>());
                                 if (snapshot.exists()) {
                                     snapshot.getRef()
                                             .child(General.getCurrentUser(requireContext()))

@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
@@ -24,6 +25,7 @@ import com.doan.music.adapter.PlaylistListViewAdapter;
 import com.doan.music.enums.PlaybackMode;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.MusicModel;
+import com.doan.music.models.PlaylistModel;
 import com.doan.music.utils.CustomAnimationUtils;
 import com.doan.music.utils.General;
 import com.doan.music.utils.OnSwipeTouchListener;
@@ -32,6 +34,7 @@ import com.doan.music.utils.OnSwipeTouchListener;
 public class MainPlayerView {
 
     private final Context context;
+    private ModelManager modelManager;
     private final TextView startTime, endTime, tvTitle, tvArtist;
     private final ImageView playPauseBtn, loopBtn, shuffleBtn, coverArt;
     private final SeekBar seekBar;
@@ -41,6 +44,7 @@ public class MainPlayerView {
     @SuppressLint("ClickableViewAccessibility")
     public MainPlayerView(Context context, RelativeLayout rootLayout, ModelManager modelManager) {
         this.context = context;
+        this.modelManager = modelManager;
         MainPlayer mainPlayer = modelManager.getMainPlayer();
 
         rootLayout.setAlpha(0);
@@ -205,9 +209,36 @@ public class MainPlayerView {
                     PlaylistAdapter.getPlaylistModels()
             );
             listView.setAdapter(adapter);
+            listView.setOnItemClickListener((adapterView, view2, i, l) -> {
+                addToPlaylist(PlaylistAdapter.getPlaylistModels().get(i));
+            });
 
             new AlertDialog.Builder(context).setView(view1).create().show();
         });
+
+        ImageView library_fav = rootLayout.findViewById(R.id.library_fav);
+        library_fav.setOnClickListener(view -> {
+            boolean result = addToPlaylist(PlaylistAdapter.getPlaylistModels().get(0));
+            if (!result) {
+                Toast.makeText(context, "Already in your favorite list", Toast.LENGTH_SHORT).show();
+            }
+            Toast.makeText(context, "Added to your favorite list!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    public boolean addToPlaylist(PlaylistModel playlistModel) {
+        MusicModel musicModel = modelManager.getCurrentSong();
+        if (playlistModel.isExist(musicModel.getSongId())) {
+            return false;
+        }
+        playlistModel.addItem(musicModel.getSongId());
+
+        General.getCurrentUserRef(context)
+                .child("playlists")
+                .child(playlistModel.getTitle())
+                .child("items")
+                .setValue(playlistModel.getItems());
+        return true;
     }
 
     public void resetTime() {

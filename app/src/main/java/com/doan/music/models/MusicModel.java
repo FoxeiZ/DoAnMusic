@@ -13,8 +13,8 @@ public class MusicModel implements Parcelable {
     private final long songId, albumId;
     private boolean isPlaying;
 
-    public long getAlbumId() {
-        return albumId;
+    public long getSongId() {
+        return songId;
     }
 
     public MusicModel(

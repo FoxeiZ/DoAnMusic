@@ -19,7 +19,7 @@
             android:background="?colorPrimary"
             app:title="@string/app_name"
             app:contentScrim="?colorPrimary"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
+            app:layout_scrollFlags="enterAlways">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout"
@@ -36,7 +36,7 @@
                     android:layout_height="0dp"
                     android:importantForAccessibility="no"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/audiotrack_icon"
+                    android:src="@drawable/ic_launcher_background"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="H,1:1"
                     app:layout_constraintLeft_toLeftOf="parent"

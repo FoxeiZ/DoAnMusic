@@ -4,6 +4,7 @@ package com.doan.music.adapter;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -18,11 +19,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.R;
+import com.doan.music.activities.PlaylistDetailActivity;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.PlaylistModel;
 import com.doan.music.utils.General;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.ref.WeakReference;
@@ -43,6 +46,7 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
 
     public PlaylistAdapter(ModelManager modelManager) {
         super(modelManager);
+        playlistModelsRef = new WeakReference<>(playlistModels);
     }
 
     public void destroy() {
@@ -113,6 +117,20 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
             desc = desc.substring(0, 50) + "...";
         }
         holder.playlistDesc.setText(desc);
+
+        holder.adapterRoot.setOnClickListener(view -> {
+            Intent intent = new Intent(view.getContext(), PlaylistDetailActivity.class);
+            intent.putExtra("playlistName", playlistModel.getTitle());
+            intent.putExtra("musicIds", playlistModel
+                    .getItems()
+                    .stream()
+                    .mapToLong(Long::longValue)
+                    .toArray()
+            );
+            intent.putExtra("index", position);
+
+            view.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -146,6 +164,11 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
 
         @Override
         public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+            if (getLayoutPosition() == 0 && playlistTitle.getText().toString().equals("Favorite")) {
+                contextMenu.add(0, 0, 0, "You can't edit favorite playlist").setEnabled(false);
+                return;
+            }
+
             contextMenu.add(0, 0, 0, "Delete").setOnMenuItemClickListener(menuItem -> {
                 General.getCurrentUserRef(view.getContext()).child("playlists").child(playlistTitle.getText().toString()).removeValue();
                 deleteListener.onDelete(getLayoutPosition());
@@ -165,7 +188,7 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
             EditText playlist_desc = view.findViewById(R.id.playlist_desc);
 
             playlist_name.setText(playlistTitle.getText());
-            playlist_desc.setText(playlistDesc.getText());
+            playlist_desc.setText(playlistDesc.getText() == "<no description>" ? "" : playlistDesc.getText());
 
             AlertDialog alertDialog = new AlertDialog.Builder(context)
                     .setView(view)
@@ -178,7 +201,15 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
                         }
 
                         String playlistDescription = playlist_desc.getText().toString();
-                        General.getCurrentUserRef(context).child("playlists").child(playlistTitle.getText().toString()).setValue(new PlaylistModel(playlistName, playlistDescription));
+                        DatabaseReference ref = General.getCurrentUserRef(context)
+                                .child("playlists")
+                                .child(playlistTitle.getText().toString());
+
+                        if (!playlistName.contentEquals(playlistTitle.getText()))
+                            ref.child("title").setValue(playlistName);
+
+                        if (!playlistDescription.contentEquals(playlistDesc.getText()))
+                            ref.child("description").setValue(playlistDescription);
 
                         playlistTitle.setText(playlistName);
                         playlistDesc.setText(playlistDescription);
