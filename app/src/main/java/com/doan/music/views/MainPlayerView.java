@@ -34,7 +34,7 @@ import com.doan.music.utils.OnSwipeTouchListener;
 public class MainPlayerView {
 
     private final Context context;
-    private ModelManager modelManager;
+    private final ModelManager modelManager;
     private final TextView startTime, endTime, tvTitle, tvArtist;
     private final ImageView playPauseBtn, loopBtn, shuffleBtn, coverArt;
     private final SeekBar seekBar;
@@ -203,6 +203,8 @@ public class MainPlayerView {
         library_add.setOnClickListener(view -> {
             View view1 = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_playlist, null);
             ListView listView = view1.findViewById(R.id.listView);
+            AlertDialog alertDialog = new AlertDialog.Builder(context).setView(view1).create();
+
             PlaylistListViewAdapter adapter = new PlaylistListViewAdapter(
                     context,
                     R.layout.list_song_item,
@@ -210,10 +212,17 @@ public class MainPlayerView {
             );
             listView.setAdapter(adapter);
             listView.setOnItemClickListener((adapterView, view2, i, l) -> {
-                addToPlaylist(PlaylistAdapter.getPlaylistModels().get(i));
+                PlaylistModel model = PlaylistAdapter.getPlaylistModels().get(i);
+                boolean result = addToPlaylist(model);
+                if (!result) {
+                    Toast.makeText(context, "Already in " + model.getTitle() + " playlist!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Added to " + model.getTitle() + " playlist!", Toast.LENGTH_SHORT).show();
+                }
+                alertDialog.dismiss();
             });
 
-            new AlertDialog.Builder(context).setView(view1).create().show();
+            alertDialog.show();
         });
 
         ImageView library_fav = rootLayout.findViewById(R.id.library_fav);

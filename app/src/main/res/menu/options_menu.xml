@@ -14,7 +14,9 @@
         android:icon="@mipmap/ic_launcher"
         app:showAsAction="ifRoom" />
 
-    <item android:title="History" />
+    <item
+        android:title="History"
+        android:id="@+id/toolbar_history" />
     <item
         android:title="About"
         android:id="@+id/toolbar_about" />

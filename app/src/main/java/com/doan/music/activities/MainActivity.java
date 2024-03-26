@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(MainActivity.this, AboutActivity.class);
             startActivity(i);
             return true;
+        } else if (itemId == R.id.toolbar_history) {
+            Intent i = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivity(i);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
                 drawerLayout.close();
             } else if (itemId == R.id.nav_favorite) {
-                Intent i = new Intent(MainActivity.this, PlaylistDetailActivity.class);
+                Intent i = new Intent(MainActivity.this, DetailPlaylistActivity.class);
                 i.putExtra("playlistName", PlaylistAdapter.getPlaylistModels().get(0).getTitle());
                 i.putExtra("musicIds", PlaylistAdapter.getPlaylistModels().get(0)
                         .getItems()

@@ -22,7 +22,7 @@
         android:theme="@style/Theme.BaseTheme"
         tools:targetApi="31">
         <activity
-            android:name=".activities.PlaylistDetailActivity"
+            android:name=".activities.DetailPlaylistActivity"
             android:exported="false" />
 
         <service
@@ -46,6 +46,9 @@
             android:exported="false" />
         <activity
             android:name=".activities.DetailAlbumActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.HistoryActivity"
             android:exported="false" />
         <activity
             android:name=".activities.SplashActivity"

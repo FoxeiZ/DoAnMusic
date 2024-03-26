@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.doan.music.R;
-import com.doan.music.activities.PlaylistDetailActivity;
+import com.doan.music.activities.DetailPlaylistActivity;
 import com.doan.music.models.ModelManager;
 import com.doan.music.models.PlaylistModel;
 import com.doan.music.utils.General;
@@ -119,7 +119,7 @@ public class PlaylistAdapter extends BaseItemAdapter<PlaylistAdapter.ViewHolder>
         holder.playlistDesc.setText(desc);
 
         holder.adapterRoot.setOnClickListener(view -> {
-            Intent intent = new Intent(view.getContext(), PlaylistDetailActivity.class);
+            Intent intent = new Intent(view.getContext(), DetailPlaylistActivity.class);
             intent.putExtra("playlistName", playlistModel.getTitle());
             intent.putExtra("musicIds", playlistModel
                     .getItems()

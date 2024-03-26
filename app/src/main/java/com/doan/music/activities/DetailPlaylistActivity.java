@@ -27,7 +27,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
 
-public class PlaylistDetailActivity extends AppCompatActivity {
+public class DetailPlaylistActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class PlaylistDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         int index = intent.getIntExtra("index", -1);
-        if (index < 0)
+        if (index < -1)
             finish();
 
         String playlistName = intent.getStringExtra("playlistName");

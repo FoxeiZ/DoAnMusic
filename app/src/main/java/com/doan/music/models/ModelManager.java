@@ -22,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.doan.music.MainPlayer;
 import com.doan.music.MusicService;
 import com.doan.music.R;
+import com.doan.music.activities.HistoryActivity;
 import com.doan.music.activities.MainActivity;
+import com.doan.music.utils.General;
 import com.doan.music.views.MainPlayerView;
 
 import java.util.ArrayList;
@@ -236,6 +238,18 @@ public class ModelManager implements MainPlayerView.SongChangeListener {
         mainPlayer.play(currentSong);
         startNewTimer();
         sendNotification(true);
+
+        General.getCurrentUserRef(context)
+                .child("history")
+                .push()
+                .setValue(currentSong.getSongId())
+                .addOnSuccessListener(runnable -> {
+                    HistoryActivity historyInstance = HistoryActivity.getInstance();
+                    if (historyInstance != null) {
+                        historyInstance.addHistory(currentSong);
+                    }
+
+                });
     }
 
     @Override
